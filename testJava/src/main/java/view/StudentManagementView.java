@@ -337,7 +337,8 @@ public class StudentManagementView extends JFrame {
 		panelView.add(comboBox_tinhView);
 
 		dateChooser = new JDateChooser();
-		dateChooser.setDateFormatString("MMM d,y");
+		dateChooser.setDate(new Date());
+		dateChooser.setDateFormatString("yyyy-MM-dd");
 		dateChooser.getCalendarButton();
 		dateChooser.setBounds(110, 113, 150, 25);
 		panelView.add(dateChooser);
