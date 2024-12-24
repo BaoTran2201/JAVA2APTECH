@@ -6,6 +6,7 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
@@ -287,7 +288,7 @@ public class StudentManagementView extends JFrame {
 		panelView.add(textField_Sub3);
 
 		btnAdd = new JButton("Add");
-		var iconAdd = new ImageIcon(this.getClass().getResource("/add1.png")).getImage();
+		var iconAdd = new ImageIcon(this.getClass().getResource("/lib/add1.png")).getImage();
 		btnAdd.setIcon(new ImageIcon(iconAdd));
 		btnAdd.addActionListener(this::btnAddActionPerformed);
 		btnAdd.setBackground(new Color(255, 255, 255));
@@ -296,7 +297,7 @@ public class StudentManagementView extends JFrame {
 		panelView.add(btnAdd);
 
 		btnDelete = new JButton("Delete");
-		var iconDel = new ImageIcon(this.getClass().getResource("/delete2.png")).getImage();
+		var iconDel = new ImageIcon(this.getClass().getResource("/lib/delete2.png")).getImage();
 		btnDelete.setIcon(new ImageIcon(iconDel));
 		btnDelete.addActionListener(this::btnDeleteActionPerformed);
 		btnDelete.setFont(new Font("Tahoma", Font.PLAIN, 17));
@@ -304,7 +305,7 @@ public class StudentManagementView extends JFrame {
 		panelView.add(btnDelete);
 
 		btnUpdate = new JButton("Update");
-		var iconUpdate = new ImageIcon(this.getClass().getResource("/update3.png")).getImage();
+		var iconUpdate = new ImageIcon(this.getClass().getResource("/lib/update3.png")).getImage();
 		btnUpdate.setIcon(new ImageIcon(iconUpdate));
 		btnUpdate.addActionListener(this::btnUpdateActionPerformed);
 		btnUpdate.setFont(new Font("Tahoma", Font.PLAIN, 17));
@@ -312,7 +313,7 @@ public class StudentManagementView extends JFrame {
 		panelView.add(btnUpdate);
 
 		btnSave = new JButton("Save");
-		var iconSave = new ImageIcon(this.getClass().getResource("/save1.png")).getImage();
+		var iconSave = new ImageIcon(this.getClass().getResource("/lib/save1.png")).getImage();
 		btnSave.setIcon(new ImageIcon(iconSave));
 		btnSave.addActionListener(this::btnSaveActionPerformed);
 		btnSave.setFont(new Font("Tahoma", Font.PLAIN, 17));
@@ -320,7 +321,7 @@ public class StudentManagementView extends JFrame {
 		panelView.add(btnSave);
 
 		btnCancel = new JButton("Cancel");
-		var iconCancel = new ImageIcon(this.getClass().getResource("/cancel2.png")).getImage();
+		var iconCancel = new ImageIcon(this.getClass().getResource("/lib/cancel2.png")).getImage();
 		btnCancel.setIcon(new ImageIcon(iconCancel));
 		btnCancel.addActionListener(this::btnCancelActionPerformed);
 		btnCancel.setFont(new Font("Tahoma", Font.PLAIN, 17));
