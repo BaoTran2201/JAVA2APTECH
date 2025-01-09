@@ -1,42 +1,36 @@
 package model;
 
-import java.util.Date;
-import java.util.Objects;
+import java.time.LocalDate;
 
 public class Student {
-	private int id;
+	private String id;
 	private String name;
-	private boolean gender;
-	private Date dob;
-	private float diemMon1, diemMon2, diemMon3;
-	private Tinh queQuan;
+	private boolean gender; // Thay boolean bằng enum Gender
+	private LocalDate dob;
+	private String diaChi;
+	private String idclass;
+	private Faculty facultyInfo;
 
-	public Student(int id, String name, boolean gender, Date dob, float diemMon1, float diemMon2, float diemMon3,
-			Tinh queQuan) {
-		super();
+	public Student() {
+
+	}
+
+	public Student(String id, String name, boolean gender, LocalDate dob, String diaChi, String idclass,
+			Faculty facultyInfo) {
 		this.id = id;
 		this.name = name;
 		this.gender = gender;
 		this.dob = dob;
-		this.diemMon1 = diemMon1;
-		this.diemMon2 = diemMon2;
-		this.diemMon3 = diemMon3;
-		this.queQuan = queQuan;
+		this.diaChi = diaChi;
+		this.idclass = idclass;
+		this.facultyInfo = facultyInfo;
 	}
 
-	public Tinh getQueQuan() {
-		return queQuan;
-	}
-
-	public void setQueQuan(Tinh queQuan) {
-		this.queQuan = queQuan;
-	}
-
-	public int getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
@@ -56,63 +50,38 @@ public class Student {
 		this.gender = gender;
 	}
 
-	public Date getDob() {
+	public LocalDate getDob() {
 		return dob;
 	}
 
-	public void setDob(Date dob) {
+	public void setDob(LocalDate dob) {
 		this.dob = dob;
 	}
 
-	public float getDiemMon1() {
-		return diemMon1;
+	public String getDiaChi() {
+		return diaChi;
 	}
 
-	public void setDiemMon1(float diemMon1) {
-		this.diemMon1 = diemMon1;
+	public void setDiaChi(String diaChi) {
+		this.diaChi = diaChi;
 	}
 
-	public float getDiemMon2() {
-		return diemMon2;
+	public String getIdclass() {
+		return idclass;
 	}
 
-	public void setDiemMon2(float diemMon2) {
-		this.diemMon2 = diemMon2;
+	public void setIdclass(String idclass) {
+		this.idclass = idclass;
 	}
 
-	public float getDiemMon3() {
-		return diemMon3;
+	public Faculty getFacultyInfo() {
+		return facultyInfo;
 	}
 
-	public void setDiemMon3(float diemMon3) {
-		this.diemMon3 = diemMon3;
+	public void setFacultyInfo(Faculty facultyInfo) {
+		this.facultyInfo = facultyInfo;
 	}
 
-	@Override
-	public String toString() {
-		return "Student [id=" + id + ", name=" + name + ", gender=" + gender + ", dob=" + dob + ", diemMon1=" + diemMon1
-				+ ", diemMon2=" + diemMon2 + ", diemMon3=" + diemMon3 + ", queQuan=" + queQuan + "]";
-	}
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(diemMon1, diemMon2, diemMon3, dob, gender, id, name, queQuan);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if ((obj == null) || (getClass() != obj.getClass())) {
-			return false;
-		}
-		var other = (Student) obj;
-		return Float.floatToIntBits(diemMon1) == Float.floatToIntBits(other.diemMon1)
-				&& Float.floatToIntBits(diemMon2) == Float.floatToIntBits(other.diemMon2)
-				&& Float.floatToIntBits(diemMon3) == Float.floatToIntBits(other.diemMon3)
-				&& Objects.equals(dob, other.dob) && gender == other.gender && id == other.id
-				&& Objects.equals(name, other.name) && Objects.equals(queQuan, other.queQuan);
-	}
 
 }

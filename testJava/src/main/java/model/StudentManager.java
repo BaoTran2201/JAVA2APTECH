@@ -7,7 +7,6 @@ public class StudentManager {
 	List<Student> list = new ArrayList<>();
 
 	public StudentManager() {
-		super();
 		this.list = list;
 	}
 

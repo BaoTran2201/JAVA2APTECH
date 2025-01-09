@@ -3,6 +3,7 @@ package view;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -14,6 +15,8 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+
+import dao.UserDAO;
 
 public class LoginFrame extends JFrame {
 	private JLabel lblForgotPass;
@@ -74,7 +77,7 @@ public class LoginFrame extends JFrame {
 		loginButton.setFocusPainted(false);
 		loginButton.setBackground(new Color(0, 128, 255));
 		loginButton.setBounds(487, 430, 193, 29);
-		loginButton.addActionListener(e -> handleLogin());
+		loginButton.addActionListener(this::handleLogin);
 		Panel.add(loginButton);
 
 		var chckbxSavePass = new JCheckBox("Remember Password");
@@ -99,7 +102,8 @@ public class LoginFrame extends JFrame {
 		setVisible(true);
 	}
 
-	private void handleLogin() {
+	private void handleLogin(ActionEvent e) {
+		var dao = new UserDAO();
 		var username = usernameField.getText().trim();
 		var password = new String(passwordField.getPassword()).trim();
 
@@ -109,13 +113,24 @@ public class LoginFrame extends JFrame {
 			return;
 		}
 
-		if (username.equals("admin") && password.equals("admin")) {
-			JOptionPane.showMessageDialog(this, "Login successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
-			// Open MenuFrame
-			var menuFrame = new MenuFrame();
-			menuFrame.setVisible(true);
-			// Hide LoginFrame
-			this.dispose();
+		// Kiểm tra thông tin người dùng
+		var isValidUser = dao.validateUser(username, password);
+		if (isValidUser) {
+			var role = dao.getUserRole(username, password);
+
+			if ("Admin".equals(role)) {
+				JOptionPane.showMessageDialog(this, "Login successful as Admin!", "Success",
+						JOptionPane.INFORMATION_MESSAGE);
+				// Mở MenuFrame cho Admin
+				new MenuFrame().setVisible(true);
+				this.dispose();
+			} else {
+				JOptionPane.showMessageDialog(this, "Login successful as User!", "Success",
+						JOptionPane.INFORMATION_MESSAGE);
+				// Mở MenuFrame cho User
+				new StudentExport().setVisible(true);
+				this.dispose();
+			}
 		} else {
 			JOptionPane.showMessageDialog(this, "Incorrect username or password!", "Error", JOptionPane.ERROR_MESSAGE);
 		}

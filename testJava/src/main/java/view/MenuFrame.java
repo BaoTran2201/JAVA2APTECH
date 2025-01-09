@@ -4,10 +4,13 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JButton;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -19,9 +22,8 @@ public class MenuFrame extends JFrame {
 	private JPanel leftPanel;
 	private JButton btnHome;
 	private JButton btnManagenment;
-	private JButton btnStatistics;
+	private JButton btnScore;
 	private JButton btnLogout_3;
-	private JLabel lblNewLabel;
 
 	private JDesktopPane desktopPane;
 
@@ -60,51 +62,78 @@ public class MenuFrame extends JFrame {
 		leftPanel.setLayout(null);
 
 		btnHome = new JButton("Home\r\n");
+		btnHome.addActionListener(this::btnHomeActionPerformed);
 		btnHome.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		btnHome.setBounds(10, 135, 193, 53);
+		btnHome.setBounds(10, 63, 193, 53);
 		leftPanel.add(btnHome);
 
 		btnManagenment = new JButton("Management");
-		btnManagenment.addActionListener(this::btnManagenmentActionPerformed);
+		btnManagenment.addActionListener(this::btnManagementActionPerformed);
 		btnManagenment.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		btnManagenment.setBounds(10, 340, 193, 54);
+		btnManagenment.setBounds(10, 319, 193, 54);
 		leftPanel.add(btnManagenment);
 
-		btnStatistics = new JButton("Statistics");
-		btnStatistics.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		btnStatistics.setBounds(10, 450, 193, 55);
-		leftPanel.add(btnStatistics);
+		btnScore = new JButton("Score");
+		btnScore.addActionListener(this::btnScoreActionPerformed);
+		btnScore.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		btnScore.setBounds(10, 449, 193, 55);
+		leftPanel.add(btnScore);
 
 		btnLogout_3 = new JButton("Logout");
 		btnLogout_3.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		btnLogout_3.setBounds(10, 544, 193, 55);
-		btnLogout_3.addActionListener(this::btnLogoutActionPerformed); // Gắn sự kiện Logout
+		btnLogout_3.setBounds(10, 515, 193, 55);
+		btnLogout_3.addActionListener(this::btnLogoutActionPerformed);
 		leftPanel.add(btnLogout_3);
 
-		lblNewLabel = new JLabel("<html><div style='text-align: center;'>STUDENT<br/> MANAGEMENT</div></html>");
-		lblNewLabel.setForeground(new Color(128, 128, 0));
-		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 23));
-		lblNewLabel.setBounds(19, 28, 202, 72);
-		leftPanel.add(lblNewLabel);
+		btnClass = new JButton("Class");
+		btnClass.addActionListener(this::btnClassActionPerformed);
+		btnClass.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		btnClass.setBounds(10, 191, 193, 53);
+		leftPanel.add(btnClass);
 
-		btnList = new JButton("List");
-		btnList.addActionListener(this::btnListActionPerformed);
-		btnList.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		btnList.setBounds(10, 235, 193, 53);
-		leftPanel.add(btnList);
+		btnSearch = new JButton("Search");
+		btnSearch.addActionListener(this::btnSearchActionPerformed);
+		btnSearch.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		btnSearch.setBounds(10, 384, 193, 54);
+		leftPanel.add(btnSearch);
+
+		btnFalcuty = new JButton("Faculty");
+		btnFalcuty.setBounds(10, 127, 193, 53);
+		leftPanel.add(btnFalcuty);
+		btnFalcuty.addActionListener(this::btnFalcutyActionPerformed);
+		btnFalcuty.setFont(new Font("Tahoma", Font.PLAIN, 20));
+
+		btnSubject = new JButton("Subject");
+		btnSubject.addActionListener(this::btnSubjectActionPerformed);
+		btnSubject.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		btnSubject.setBounds(10, 255, 193, 53);
+		leftPanel.add(btnSubject);
 
 		desktopPane = new JDesktopPane();
 		desktopPane.setBackground(new Color(255, 128, 128));
-		desktopPane.setBounds(314, 18, 916, 661);
+		desktopPane.setBounds(282, 18, 923, 636);
 		contentPane.add(desktopPane);
+
+		btnHomeActionPerformed(null);
 	}
 
 	private StudentManagementView managementView;
-	private JButton btnList;
+	private JButton btnClass;
+	private JButton btnSearch;
+	private JButton btnFalcuty;
+	private JButton btnSubject;
 
-	protected void btnManagenmentActionPerformed(ActionEvent e) {
+	protected void btnManagementActionPerformed(ActionEvent e) {
 		if (managementView == null || !managementView.isDisplayable()) {
 			managementView = new StudentManagementView();
+			managementView.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+			managementView.addWindowListener(new WindowAdapter() {
+				@Override
+				public void windowClosing(WindowEvent e) {
+					managementView = null;
+				}
+			});
+			managementView.setLocationRelativeTo(this);
 			managementView.setVisible(true);
 		} else {
 			managementView.toFront();
@@ -122,11 +151,15 @@ public class MenuFrame extends JFrame {
 		this.dispose();
 	}
 
-	protected void btnListActionPerformed(ActionEvent e) {
+	protected void btnClassActionPerformed(ActionEvent e) {
 		for (var component : desktopPane.getComponents()) {
-			if (component instanceof List_Students listStudentsFrame && listStudentsFrame.isVisible()) {
-				listStudentsFrame.toFront();
-				return;
+			try {
+				if (component instanceof JInternalFrame frame) {
+					frame.dispose();
+					desktopPane.remove(frame);
+				}
+			} catch (Exception ex) {
+				System.err.println("Lỗi khi đóng hoặc xóa frame: " + ex.getMessage());
 			}
 		}
 
@@ -136,19 +169,163 @@ public class MenuFrame extends JFrame {
 			}
 		}
 
-		var titleLabel = new JLabel("LIST STUDENT", JLabel.CENTER);
+		var titleLabel = new JLabel("CLASS MANAGEMENT", JLabel.CENTER);
 		titleLabel.setName("title");
 		titleLabel.setFont(new Font("Tahoma", Font.BOLD, 24));
 		titleLabel.setForeground(Color.WHITE);
 		titleLabel.setBounds(0, 0, desktopPane.getWidth(), 50);
 		desktopPane.add(titleLabel);
 
-		var listStudent = new List_Students();
-		desktopPane.add(listStudent);
-		listStudent.setVisible(true);
+		var classFrame = new SubInfo();
+		classFrame.setBounds(0, 50, desktopPane.getWidth(), desktopPane.getHeight() - 50);
+		classFrame.setResizable(true);
+		desktopPane.add(classFrame);
 
+		classFrame.setVisible(true);
+		desktopPane.repaint();
+	}
+
+	protected void btnSearchActionPerformed(ActionEvent e) {
+
+		for (var component : desktopPane.getComponents()) {
+			if (component instanceof JInternalFrame frame) {
+				frame.dispose();
+				desktopPane.remove(frame);
+			}
+		}
+
+		for (var component : desktopPane.getComponents()) {
+			if (component instanceof JLabel && "title".equals(component.getName())) {
+				desktopPane.remove(component);
+			}
+		}
+
+		var titleLabel = new JLabel("SEARCH STUDENT", JLabel.CENTER);
+		titleLabel.setName("title");
+		titleLabel.setFont(new Font("Tahoma", Font.BOLD, 24));
+		titleLabel.setForeground(Color.WHITE);
+		titleLabel.setBounds(0, 0, desktopPane.getWidth(), 50);
+		desktopPane.add(titleLabel);
+
+		var searchFrame = new StudentsSearch();
+		searchFrame.setBounds(0, 50, desktopPane.getWidth(), desktopPane.getHeight() - 50);
+		searchFrame.setResizable(true);
+		desktopPane.add(searchFrame);
+
+		searchFrame.setVisible(true);
 		desktopPane.repaint();
 
 	}
 
+	protected void btnFalcutyActionPerformed(ActionEvent e) {
+		for (var component : desktopPane.getComponents()) {
+			try {
+				if (component instanceof JInternalFrame frame) {
+					frame.dispose();
+					desktopPane.remove(frame);
+				}
+			} catch (Exception ex) {
+				System.err.println("Lỗi khi đóng hoặc xóa frame: " + ex.getMessage());
+			}
+		}
+		for (var component : desktopPane.getComponents()) {
+			if (component instanceof JLabel && "title".equals(component.getName())) {
+				desktopPane.remove(component);
+			}
+		}
+		var titleLabel = new JLabel("FACULTY MANAGEMENT", JLabel.CENTER);
+		titleLabel.setName("title");
+		titleLabel.setFont(new Font("Tahoma", Font.BOLD, 24));
+		titleLabel.setForeground(Color.WHITE);
+		titleLabel.setBounds(0, 0, desktopPane.getWidth(), 50);
+		desktopPane.add(titleLabel);
+		var facultyFrame = new FacultyInfo();
+		facultyFrame.setBounds(0, 50, desktopPane.getWidth(), desktopPane.getHeight() - 50);
+		facultyFrame.setResizable(true);
+		desktopPane.add(facultyFrame);
+
+		facultyFrame.setVisible(true);
+		desktopPane.repaint();
+
+	}
+
+	protected void btnHomeActionPerformed(ActionEvent e) {
+		for (var component : desktopPane.getComponents()) {
+			try {
+				desktopPane.remove(component);
+			} catch (Exception ex) {
+				System.err.println("Lỗi khi xóa thành phần: " + ex.getMessage());
+			}
+		}
+		var defaultLabel = new JLabel("WELCOME TO STUDENT MANAGEMENT SYSTEM", JLabel.CENTER);
+		defaultLabel.setFont(new Font("Tahoma", Font.BOLD, 24));
+		defaultLabel.setForeground(Color.WHITE);
+		defaultLabel.setBounds(0, 0, desktopPane.getWidth(), desktopPane.getHeight());
+		defaultLabel.setName("homeLabel");
+		desktopPane.add(defaultLabel);
+		desktopPane.repaint();
+		desktopPane.revalidate();
+	}
+
+	protected void btnScoreActionPerformed(ActionEvent e) {
+		for (var component : desktopPane.getComponents()) {
+			try {
+				if (component instanceof JInternalFrame frame) {
+					frame.dispose();
+					desktopPane.remove(frame);
+				}
+			} catch (Exception ex) {
+				System.err.println("Lỗi khi đóng hoặc xóa frame: " + ex.getMessage());
+			}
+		}
+		for (var component : desktopPane.getComponents()) {
+			if (component instanceof JLabel && "title".equals(component.getName())) {
+				desktopPane.remove(component);
+			}
+		}
+		var titleLabel = new JLabel("SCORE MANAGEMENT", JLabel.CENTER);
+		titleLabel.setName("title");
+		titleLabel.setFont(new Font("Tahoma", Font.BOLD, 24));
+		titleLabel.setForeground(Color.WHITE);
+		titleLabel.setBounds(0, 0, desktopPane.getWidth(), 50);
+		desktopPane.add(titleLabel);
+		var scoreFrame = new StudentScore();
+		scoreFrame.setBounds(0, 50, desktopPane.getWidth(), desktopPane.getHeight() - 50);
+		scoreFrame.setResizable(true);
+		desktopPane.add(scoreFrame);
+
+		scoreFrame.setVisible(true);
+		desktopPane.repaint();
+	}
+
+	protected void btnSubjectActionPerformed(ActionEvent e) {
+		for (var component : desktopPane.getComponents()) {
+			try {
+				if (component instanceof JInternalFrame frame) {
+					frame.dispose();
+					desktopPane.remove(frame);
+				}
+			} catch (Exception ex) {
+				System.err.println("Lỗi khi đóng hoặc xóa frame: " + ex.getMessage());
+			}
+		}
+		for (var component : desktopPane.getComponents()) {
+			if (component instanceof JLabel && "title".equals(component.getName())) {
+				desktopPane.remove(component);
+			}
+		}
+		var titleLabel = new JLabel("SUBJECT MANAGEMENT", JLabel.CENTER);
+		titleLabel.setName("title");
+		titleLabel.setFont(new Font("Tahoma", Font.BOLD, 24));
+		titleLabel.setForeground(Color.WHITE);
+		titleLabel.setBounds(0, 0, desktopPane.getWidth(), 50);
+		desktopPane.add(titleLabel);
+		var subFrame = new SubInfo();
+		subFrame.setBounds(0, 50, desktopPane.getWidth(), desktopPane.getHeight() - 50);
+		subFrame.setResizable(true);
+		desktopPane.add(subFrame);
+
+		subFrame.setVisible(true);
+		desktopPane.repaint();
+	}
 }
