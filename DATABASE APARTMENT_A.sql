@@ -13,7 +13,7 @@ GO
 DROP table IF EXISTS members;
 create table members
 (
-    memberID INT IDENTITY PRIMARY KEY,  --căn cước công dân
+    memberID NVARCHAR(20) PRIMARY KEY,  --căn cước công dân
     memberName NVARCHAR(100) NOT NULL,
     avartar NVARCHAR(500),
     country NVARCHAR(200),
@@ -37,16 +37,16 @@ CREATE TABLE Account (
     memberName NVARCHAR(100),  
     Pass NVARCHAR(255) DEFAULT '1',
     JobRole NVARCHAR(20),       
-    memberID INT,  
+     memberID NVARCHAR(20),  
     FOREIGN KEY (memberID) REFERENCES members(memberID) ON DELETE SET NULL
 );
 
 DROP table IF EXISTS member_family;
 create table member_family
 (
-    FmemberID INT IDENTITY PRIMARY KEY,  
+    FmemberID NVARCHAR(20) PRIMARY KEY,  
     FmemberName NVARCHAR(100) NOT NULL,
-    memberID INT,  
+     memberID NVARCHAR(20),  
     FOREIGN KEY (memberID) REFERENCES members(memberID) ON DELETE SET NULL ,
     member_familyStatus bit
 );
@@ -55,6 +55,7 @@ create table member_family
 DROP table IF EXISTS services;
 create table services
 (
+	servicesID INT IDENTITY PRIMARY KEY,
    member_familyStatus bit
 );
 
