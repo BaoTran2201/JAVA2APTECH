@@ -52,11 +52,16 @@ create table member_family
 );
 
 
-DROP table IF EXISTS services;
-create table services
+DROP table IF EXISTS services_;
+create table services_
 (
 	servicesID INT IDENTITY PRIMARY KEY,
+	serviceType Nvarchar(20),
+	serviceName NVARCHAR(20),
+  serviceTotal int,
+	membersID NVARCHAR(20),
    member_familyStatus bit
+   FOREIGN KEY (memberID) REFERENCES members(memberID) ON DELETE SET NULL ,
 );
 
 
@@ -77,7 +82,12 @@ create table contracts
 DROP table IF EXISTS floor;
 create table floor
 (
-   floorStatus bit
+  floorID int IDENTITY PRIMARY KEY,
+  floorNumber int not null,
+  TotalApartments  int default 0,
+   floorStatus INT DEFAULT 1 
+  --  1: Hoạt động
+  --  2: Đang bảo trì
 );
 
 
@@ -117,7 +127,11 @@ create table Apart_Rule
 DROP table IF EXISTS Report;
 create table Report
 (
+    ReportID int IDENTITY PRIMARY KEY,
+    servicesID INT(20),
   ReportStatus bit
+
+  -- servicesID
 ); 
 
 DROP table IF EXISTS reject_List;
@@ -130,12 +144,18 @@ DROP table IF EXISTS Apartments; --Mục đích: Quản lý thông tin về các
 create table Apartments
 (
  ApartmentID INT IDENTITY PRIMARY KEY,
-    BuildingName NVARCHAR(50),
-    Floor INT,
+    ApartmentName NVARCHAR(50), 
+    floorID INT,
     ApartmentNumber NVARCHAR(10) NOT NULL,
     ApartmentType NVARCHAR(20),
-    Area FLOAT, -- Diện tích căn hộ
-    Apartments_Status NVARCHAR(20) DEFAULT 'Trống' -- Trạng thái: Đang ở/Trống/Đang sửa chữa
+    Area DECIMAL(10,2), -- Diện tích căn hộ
+    Apartments_Status int DEFAULT '1' 
+    --  Trạng thái: 1 -> Căn hộ trống ;
+    --              2 -> Đã cho thuê ; 
+    --              3 -> Chờ ký hợp đồng ;
+    --              4 -> Đang Bảo trì ; 
+    --              5 -> Chờ dọn dẹp.
+    FOREIGN KEY (floorID) REFERENCES floor(floorID) ON DELETE SET NULL
 ); 
 
 DROP table IF EXISTS MaintenanceRequests;
