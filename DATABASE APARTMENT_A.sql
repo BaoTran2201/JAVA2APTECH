@@ -50,9 +50,9 @@ CREATE TABLE members (
     memberName NVARCHAR(100) NOT NULL,
     avatar NVARCHAR(500),
     country NVARCHAR(200),
-    dob DATE DEFAULT GETDATE(),
-    StartDate DATE DEFAULT GETDATE(),
-    EndDate DATE DEFAULT NULL,
+    dob DATE NULL,
+    StartDate DATE NULL,
+    EndDate DATE NULL,
     quantity INT,
     Phone NVARCHAR(15),
     Email NVARCHAR(100),
@@ -62,6 +62,7 @@ CREATE TABLE members (
     memberStatus BIT, 
     FOREIGN KEY (apartmentID) REFERENCES Apartments(ApartmentID) ON DELETE SET NULL
 );
+ALTER TABLE members ADD identityImage NVARCHAR(500);
 
 --  Bảng dịch vụ chung cư
 DROP TABLE IF EXISTS services;
@@ -196,3 +197,15 @@ VALUES (1, 1, '101', '2PN', 50, 1),
 FROM Apartments a
 LEFT JOIN floor f ON a.FloorID = f.FloorID
 LEFT JOIN Building b ON a.BuildingID = b.BuildingID;
+
+--trigger
+CREATE TRIGGER trg_DefaultDate ON members
+AFTER INSERT
+AS
+BEGIN
+    UPDATE members
+    SET dob = COALESCE(dob, GETDATE()),
+        StartDate = COALESCE(StartDate, GETDATE()),
+        EndDate = COALESCE(EndDate, GETDATE())
+    WHERE memberID IN (SELECT memberID FROM inserted);
+END;

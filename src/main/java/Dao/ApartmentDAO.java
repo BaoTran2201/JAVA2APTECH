@@ -114,10 +114,7 @@ public class ApartmentDAO {
 
 	// Thêm phòng mới vào database
 	public boolean addApartment(Apartment apartment) {
-		var sql = """
-				INSERT INTO Apartments (BuildingID, FloorID, ApartmentNumber, ApartmentType, Area, Apartments_Status)
-				VALUES (?, ?, ?, ?, ?, ?)
-				""";
+		var sql = "INSERT INTO Apartments (BuildingID, FloorID, ApartmentNumber, ApartmentType, Area, Apartments_Status) VALUES (?, ?, ?, ?, ?, ?)";
 
 		try (var conn = ConnectDB.getCon(); var stmt = conn.prepareStatement(sql)) {
 			stmt.setInt(1, apartment.getBuildingID());
@@ -125,14 +122,13 @@ public class ApartmentDAO {
 			stmt.setString(3, apartment.getApartmentNumber());
 			stmt.setString(4, apartment.getApartmentType());
 			stmt.setDouble(5, apartment.getArea());
-			stmt.setInt(6, apartment.getApartmentsStatus());
+			stmt.setInt(6, 2); // ⚡ Luôn đặt trạng thái mặc định là "Căn hộ trống"
 
-			return stmt.executeUpdate() > 0; // Trả về true nếu thêm thành công
-
+			return stmt.executeUpdate() > 0;
 		} catch (SQLException e) {
 			e.printStackTrace();
-			return false;
 		}
+		return false;
 	}
 
 	public List<Apartment> getApartmentsByFloor() {
@@ -158,16 +154,17 @@ public class ApartmentDAO {
 		return apartments;
 	}
 
-	public boolean updateApartmentStatus(int apartmentID, int newStatus) {
-		var sql = "UPDATE Apartments SET Apartments_Status = ? WHERE ApartmentID = ?";
+	public boolean updateApartmentStatus(int apartmentID, int status) {
+		var sql = "UPDATE Apartments SET Apartments_Status = ? WHERE ApartmentID = ?"; // Đảm bảo tên cột đúng
+
 		try (var conn = ConnectDB.getCon(); var stmt = conn.prepareStatement(sql)) {
-			stmt.setInt(1, newStatus);
+			stmt.setInt(1, status);
 			stmt.setInt(2, apartmentID);
 			return stmt.executeUpdate() > 0;
 		} catch (SQLException e) {
 			e.printStackTrace();
-			return false;
 		}
+		return false;
 	}
 
 	public List<String> getAvailableApartments() {
@@ -187,6 +184,71 @@ public class ApartmentDAO {
 			e.printStackTrace();
 		}
 		return apartments;
+	}
+
+	public boolean updateApartment(Apartment apartment) {
+		var sql = """
+				    UPDATE Apartments
+				    SET BuildingID = ?, FloorID = ?, ApartmentNumber = ?, ApartmentType = ?, Area = ?, Apartments_Status = ?
+				    WHERE ApartmentID = ?
+				""";
+
+		try (var conn = ConnectDB.getCon(); var stmt = conn.prepareStatement(sql)) {
+			stmt.setInt(1, apartment.getBuildingID());
+			stmt.setInt(2, apartment.getFloorID());
+			stmt.setString(3, apartment.getApartmentNumber());
+			stmt.setString(4, apartment.getApartmentType());
+			stmt.setDouble(5, apartment.getArea());
+			stmt.setInt(6, apartment.getApartmentsStatus());
+			stmt.setInt(7, apartment.getApartmentID());
+
+			return stmt.executeUpdate() > 0; // Trả về true nếu cập nhật thành công
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	public boolean restoreApartment(int apartmentID) {
+		var sql = "UPDATE Apartments SET Apartments_Status = 2 WHERE ApartmentID = ?";
+		try (var conn = ConnectDB.getCon(); var stmt = conn.prepareStatement(sql)) {
+			stmt.setInt(1, apartmentID);
+			return stmt.executeUpdate() > 0; // Trả về true nếu cập nhật thành công
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	public boolean moveApartmentToTrash(int apartmentID) {
+		var sql = "UPDATE Apartments SET Apartments_Status = 0 WHERE ApartmentID = ?";
+		try (var conn = ConnectDB.getCon(); var stmt = conn.prepareStatement(sql)) {
+			stmt.setInt(1, apartmentID);
+			return stmt.executeUpdate() > 0; // Trả về true nếu cập nhật thành công
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	public List<Apartment> getDeletedApartments() {
+		List<Apartment> deletedApartments = new ArrayList<>();
+		var sql = """
+				  SELECT ApartmentID, BuildingID, FloorID, ApartmentNumber, ApartmentType, Area
+				  FROM Apartments
+				  WHERE Apartments_Status = 0
+				""";
+
+		try (var conn = ConnectDB.getCon(); var stmt = conn.prepareStatement(sql); var rs = stmt.executeQuery()) {
+			while (rs.next()) {
+				deletedApartments.add(new Apartment(rs.getInt("ApartmentID"), rs.getInt("BuildingID"),
+						rs.getInt("FloorID"), rs.getString("ApartmentNumber"), rs.getString("ApartmentType"),
+						rs.getDouble("Area"), 0)); // Trạng thái là 0
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return deletedApartments;
 	}
 
 }

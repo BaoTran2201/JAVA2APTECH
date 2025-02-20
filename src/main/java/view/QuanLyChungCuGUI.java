@@ -1,6 +1,8 @@
 package view;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
@@ -15,14 +17,16 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableModel;
 
 import Dao.ApartmentDAO;
-import Dao.MemberDAO;
+import Dao.UserDAO;
 import model.Apartment;
 
 public class QuanLyChungCuGUI extends JFrame {
@@ -193,7 +197,7 @@ public class QuanLyChungCuGUI extends JFrame {
 		// Xử lý sự kiện click nút Home
 		btnKhachhang.addActionListener(e -> {
 			// Tạo và hiển thị trang HomeScreen
-			new CustomerFrame().setVisible(true); // Trang chủ HomeScreen sẽ được mở
+			new UserManagementPage().setVisible(true); // Trang chủ HomeScreen sẽ được mở
 			dispose(); // Đóng cửa sổ hiện tại (quản lý chung cư)
 		});
 
@@ -243,7 +247,7 @@ public class QuanLyChungCuGUI extends JFrame {
 		separator_1.setBounds(10, 506, 270, 2);
 		menuPanel.add(separator_1);
 
-		lblQunL = new JLabel("NULL");
+		lblQunL = new JLabel("OTHER");
 		lblQunL.setHorizontalAlignment(SwingConstants.CENTER);
 		lblQunL.setForeground(Color.WHITE);
 		lblQunL.setFont(new Font("Arial", Font.BOLD, 20));
@@ -295,6 +299,7 @@ public class QuanLyChungCuGUI extends JFrame {
 		btnThngRac_2.setBounds(10, 733, 270, 42);
 		menuPanel.add(btnThngRac_2);
 		addHoverEffect(btnThngRac_2);
+		btnThngRac_2.addActionListener(e -> xemThungRac());
 
 		panel = new JPanel();
 		panel.setBackground(new Color(255, 255, 255));
@@ -461,10 +466,11 @@ public class QuanLyChungCuGUI extends JFrame {
 		};
 	}
 
-	private void loadApartmentsToGUI() {
+	public void loadApartmentsToGUI() {
 		var dao = new ApartmentDAO();
 		var apartments = dao.getApartmentsByFloor();
 
+		// Xóa toàn bộ nội dung cũ trước khi tải dữ liệu mới
 		Floor.removeAll();
 		Floor.revalidate();
 		Floor.repaint();
@@ -475,34 +481,35 @@ public class QuanLyChungCuGUI extends JFrame {
 
 		for (Apartment apt : apartments) {
 			if (apt.getFloorID() != floorNumber) {
+				// Tạo tiêu đề cho từng tầng
 				floorNumber = apt.getFloorID();
-				var floorLabel = new JLabel("Floor " + floorNumber);
+				var floorLabel = new JLabel("Tầng " + floorNumber);
 				floorLabel.setFont(new Font("Arial", Font.BOLD, 14));
 				floorLabel.setBounds(10, yPos, 200, 20);
 				Floor.add(floorLabel);
 				yPos += 30;
 
+				// Tạo panel chứa các phòng trong tầng
 				floorPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
 				floorPanel.setBounds(10, yPos, 900, 120);
 				Floor.add(floorPanel);
 				yPos += 130;
 			}
 
+			// Tạo panel hiển thị căn hộ
 			var roomPanel = new JPanel();
-			roomPanel.setBorder(new TitledBorder(new EtchedBorder(), apt.getApartmentNumber()));
+			roomPanel.setBorder(new TitledBorder(new EtchedBorder(), "Căn hộ " + apt.getApartmentNumber()));
 			roomPanel.setBackground(getStatusColor(apt.getApartmentsStatus()));
 			roomPanel.setPreferredSize(new Dimension(150, 100));
 
-			// Thêm menu chuột phải
+			// Thêm menu chuột phải để cập nhật trạng thái căn hộ
 			var popupMenu = new JPopupMenu();
 			var itemSetStatus = new JMenuItem("Cập nhật trạng thái");
 			popupMenu.add(itemSetStatus);
-
 			itemSetStatus.addActionListener(e -> showStatusDialog(apt));
-
 			roomPanel.setComponentPopupMenu(popupMenu);
 
-			// Thêm sự kiện nhấn chuột trái để mở thông tin chủ sở hữu
+			// Sự kiện click chuột trái để mở thông tin chủ sở hữu
 			roomPanel.addMouseListener(new java.awt.event.MouseAdapter() {
 				@Override
 				public void mousePressed(java.awt.event.MouseEvent evt) {
@@ -512,6 +519,7 @@ public class QuanLyChungCuGUI extends JFrame {
 				}
 			});
 
+			// Thêm roomPanel vào floorPanel
 			floorPanel.add(roomPanel);
 		}
 	}
@@ -537,15 +545,140 @@ public class QuanLyChungCuGUI extends JFrame {
 	}
 
 	private void showOwnerInfo(int apartmentID) {
-		var memberDAO = new MemberDAO();
-		var owner = memberDAO.getOwnerByApartmentID(apartmentID);
+		var memberDAO = new UserDAO();
+		var owner = memberDAO.getUserByApartmentID(apartmentID);
 
 		if (owner != null) {
-			new ApartmentOwnerInfoFrame(owner);
+			new OwnerDetailPage(owner).setVisible(true); // Mở giao diện mới
 		} else {
 			JOptionPane.showMessageDialog(this, "Không tìm thấy chủ sở hữu!", "Thông báo",
 					JOptionPane.INFORMATION_MESSAGE);
 		}
+	}
+
+	private void xemThungRac() {
+		// 🏢 Đóng frame hiện tại khi mở trang thùng rác
+		dispose();
+
+		// 🗑️ Tạo frame mới cho Thùng Rác
+		var trashFrame = new JFrame("Thùng Rác - Căn Hộ Đã Xóa");
+		trashFrame.setBounds(100, 100, 1292, 889);
+		trashFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		trashFrame.setLayout(new BorderLayout());
+
+		// 🌟 Panel tiêu đề
+		var titlePanel = new JPanel(new BorderLayout());
+		titlePanel.setBackground(new Color(64, 128, 128));
+
+		// 🔙 Nút Back
+		var btnBack = new JButton("◄ Back");
+		btnBack.setFont(new Font("Arial", Font.BOLD, 16));
+		btnBack.setForeground(Color.WHITE);
+		btnBack.setBackground(new Color(64, 128, 128));
+		btnBack.setBorder(null);
+		btnBack.setFocusPainted(false);
+		btnBack.setContentAreaFilled(false);
+		btnBack.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		btnBack.addActionListener(e -> {
+			new QuanLyChungCuGUI().setVisible(true); // Mở lại trang chính
+			trashFrame.dispose(); // Đóng trang thùng rác
+		});
+
+		btnBack.addMouseListener(new java.awt.event.MouseAdapter() {
+			@Override
+			public void mouseEntered(java.awt.event.MouseEvent evt) {
+				btnBack.setForeground(new Color(200, 200, 200));
+			}
+
+			@Override
+			public void mouseExited(java.awt.event.MouseEvent evt) {
+				btnBack.setForeground(Color.WHITE);
+			}
+		});
+
+		// 📌 Tiêu đề
+		var lblTitle = new JLabel("Thùng Rác", JLabel.CENTER);
+		lblTitle.setForeground(Color.WHITE);
+		lblTitle.setFont(new Font("Arial", Font.BOLD, 24));
+
+		titlePanel.add(btnBack, BorderLayout.WEST);
+		titlePanel.add(lblTitle, BorderLayout.CENTER);
+		trashFrame.add(titlePanel, BorderLayout.NORTH);
+
+		// 🏠 Bảng hiển thị căn hộ đã xóa
+		String[] columnNames = { "Mã Phòng", "Tòa Nhà", "Tầng", "Số Phòng", "Loại Phòng", "Diện Tích", "Trạng Thái" };
+		var tableModel = new DefaultTableModel(columnNames, 0);
+		var table = new JTable(tableModel);
+
+		// 🗑️ Lấy dữ liệu từ database
+		var dao = new ApartmentDAO();
+		for (Apartment a : dao.getDeletedApartments()) {
+			tableModel.addRow(new Object[] { a.getApartmentID(), a.getBuildingID(), a.getFloorID(),
+					a.getApartmentNumber(), a.getApartmentType(), a.getArea(), "Đã xóa" });
+		}
+
+		// 🎛️ Tạo bảng scrollable
+		var scrollPane = new JScrollPane(table);
+		trashFrame.add(scrollPane, BorderLayout.CENTER);
+
+		// 🎛️ Tạo panel chứa nút
+		var buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+		buttonPanel.setBackground(new Color(64, 128, 128));
+
+		// 🔄 Nút khôi phục
+		var btnRestore = new JButton("Khôi Phục");
+		btnRestore.setFont(new Font("Arial", Font.BOLD, 14));
+		btnRestore.setBackground(new Color(0, 153, 76)); // Xanh lá
+		btnRestore.setForeground(Color.WHITE);
+		btnRestore.setBorder(new LineBorder(new Color(0, 102, 51), 2, true));
+		btnRestore.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+		// 🎨 Hover effect cho nút
+		btnRestore.addMouseListener(new java.awt.event.MouseAdapter() {
+			@Override
+			public void mouseEntered(java.awt.event.MouseEvent evt) {
+				btnRestore.setBackground(new Color(34, 177, 76));
+			}
+
+			@Override
+			public void mouseExited(java.awt.event.MouseEvent evt) {
+				btnRestore.setBackground(new Color(0, 153, 76));
+			}
+		});
+
+		btnRestore.addActionListener(e -> {
+			var selectedRow = table.getSelectedRow();
+			if (selectedRow == -1) {
+				JOptionPane.showMessageDialog(trashFrame, "Vui lòng chọn một căn hộ để khôi phục!", "Lỗi",
+						JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+
+			// 📦 Lấy ID căn hộ
+			var apartmentID = (int) tableModel.getValueAt(selectedRow, 0);
+
+			// ✅ Xác nhận khôi phục
+			var confirm = JOptionPane.showConfirmDialog(trashFrame, "Bạn có chắc chắn muốn khôi phục căn hộ này?",
+					"Xác nhận", JOptionPane.YES_NO_OPTION);
+
+			if (confirm == JOptionPane.YES_OPTION) {
+				var success = dao.restoreApartment(apartmentID);
+				if (success) {
+					JOptionPane.showMessageDialog(trashFrame, "Khôi phục thành công!", "Thông báo",
+							JOptionPane.INFORMATION_MESSAGE);
+					tableModel.removeRow(selectedRow); // Xóa khỏi giao diện
+					loadApartmentsToGUI(); // Cập nhật danh sách căn hộ
+				} else {
+					JOptionPane.showMessageDialog(trashFrame, "Khôi phục thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		});
+
+		buttonPanel.add(btnRestore);
+		trashFrame.add(buttonPanel, BorderLayout.SOUTH);
+
+		// Hiển thị frame thùng rác
+		trashFrame.setVisible(true);
 	}
 
 }

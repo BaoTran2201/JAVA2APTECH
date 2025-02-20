@@ -94,18 +94,125 @@ public class RoomManagementPage extends JFrame {
 		// Panel nút chức năng
 		var panelBottom = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
 		panelBottom.setBackground(new Color(64, 128, 128));
-
-		var btnThemPhong = new JButton("Thêm phòng");
+		// nút thêm
+		var btnThemPhong = new JButton("Add");
 		btnThemPhong.addActionListener(e -> themPhong());
 
 		panelBottom.add(btnThemPhong);
+		contentPane.add(panelBottom, BorderLayout.SOUTH);
+		// nút sửa
+		var btnSua = new JButton("Edit");
+		btnSua.addActionListener(e -> suaPhong());
+
+		panelBottom.add(btnSua);
+		contentPane.add(panelBottom, BorderLayout.SOUTH);
+
+		// nút xóa
+		var btnXoa = new JButton("Delete");
+		btnXoa.addActionListener(e -> xoaPhong());
+
+		panelBottom.add(btnXoa);
 		contentPane.add(panelBottom, BorderLayout.SOUTH);
 
 		// Load dữ liệu
 		loadDataToTable();
 	}
 
-	// 🔄 Load danh sách phòng lên bảng
+	private void xoaPhong() {
+		var selectedRow = table.getSelectedRow();
+		if (selectedRow == -1) {
+			JOptionPane.showMessageDialog(this, "Vui lòng chọn một phòng để xóa!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+
+		// 🏢 Lấy ApartmentID từ bảng
+		var apartmentID = (int) tableModel.getValueAt(selectedRow, 0);
+
+		// 🔴 Xác nhận trước khi chuyển vào thùng rác
+		var confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc chắn muốn chuyển căn hộ này vào thùng rác?",
+				"Xác nhận", JOptionPane.YES_NO_OPTION);
+
+		if (confirm == JOptionPane.YES_OPTION) {
+			var dao = new ApartmentDAO();
+			var success = dao.moveApartmentToTrash(apartmentID);
+
+			if (success) {
+				JOptionPane.showMessageDialog(this, "Căn hộ đã được chuyển vào thùng rác!", "Thông báo",
+						JOptionPane.INFORMATION_MESSAGE);
+				loadDataToTable(); // Làm mới bảng sau khi cập nhật trạng thái
+			} else {
+				JOptionPane.showMessageDialog(this, "Cập nhật trạng thái thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+			}
+		}
+	}
+
+	private void suaPhong() {
+		var selectedRow = table.getSelectedRow();
+		if (selectedRow == -1) {
+			JOptionPane.showMessageDialog(this, "Vui lòng chọn một phòng để sửa!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+
+		var apartmentID = (int) tableModel.getValueAt(selectedRow, 0);
+		var buildingID = tableModel.getValueAt(selectedRow, 1).toString();
+		var floorID = tableModel.getValueAt(selectedRow, 2).toString();
+		var apartmentNumber = tableModel.getValueAt(selectedRow, 3).toString();
+		var apartmentType = tableModel.getValueAt(selectedRow, 4).toString();
+		var area = tableModel.getValueAt(selectedRow, 5).toString();
+		var apartmentStatus = (int) tableModel.getValueAt(selectedRow, 6);
+
+		var txtBuildingID = new JTextField(buildingID);
+		var txtFloorID = new JTextField(floorID);
+		var txtApartmentNumber = new JTextField(apartmentNumber);
+		var txtApartmentType = new JTextField(apartmentType);
+		var txtArea = new JTextField(area);
+
+		String[] statusOptions = { "1 - Đang ở", "2 - Trống", "3 - Đang chờ ký hợp đồng", "4 - Đang bảo trì",
+				"5 - Chờ dọn dẹp" };
+		var cbStatus = new JComboBox<>(statusOptions);
+		cbStatus.setSelectedIndex(apartmentStatus - 1);
+
+		var panel = new JPanel(new GridLayout(6, 2, 10, 10));
+		panel.add(new JLabel("Tòa nhà:"));
+		panel.add(txtBuildingID);
+		panel.add(new JLabel("Số tầng:"));
+		panel.add(txtFloorID);
+		panel.add(new JLabel("Số phòng:"));
+		panel.add(txtApartmentNumber);
+		panel.add(new JLabel("Loại phòng:"));
+		panel.add(txtApartmentType);
+		panel.add(new JLabel("Diện tích (m²):"));
+		panel.add(txtArea);
+		panel.add(new JLabel("Trạng thái:"));
+		panel.add(cbStatus);
+
+		var result = JOptionPane.showConfirmDialog(null, panel, "Sửa thông tin phòng", JOptionPane.OK_CANCEL_OPTION);
+		if (result == JOptionPane.OK_OPTION) {
+			try {
+				var dao = new ApartmentDAO();
+
+				var newBuildingID = Integer.parseInt(txtBuildingID.getText().trim());
+				var newFloorID = Integer.parseInt(txtFloorID.getText().trim());
+				var newApartmentNumber = txtApartmentNumber.getText().trim();
+				var newApartmentType = txtApartmentType.getText().trim();
+				var newArea = Double.parseDouble(txtArea.getText().trim());
+				var newStatus = cbStatus.getSelectedIndex() + 1;
+
+				var success = dao.updateApartment(new Apartment(apartmentID, newBuildingID, newFloorID,
+						newApartmentNumber, newApartmentType, newArea, newStatus));
+
+				if (success) {
+					JOptionPane.showMessageDialog(null, "Cập nhật phòng thành công!");
+					loadDataToTable();
+				} else {
+					JOptionPane.showMessageDialog(null, "Cập nhật thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+				}
+			} catch (NumberFormatException ex) {
+				JOptionPane.showMessageDialog(null, "Dữ liệu nhập không hợp lệ!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+			}
+		}
+	}
+
 	private void loadDataToTable() {
 		tableModel.setRowCount(0); // Xóa dữ liệu cũ
 		var dao = new ApartmentDAO();
@@ -115,18 +222,14 @@ public class RoomManagementPage extends JFrame {
 		}
 	}
 
-	// 🏢 Thêm phòng mới
 	private void themPhong() {
 		var txtBuildingName = new JTextField();
 		var txtFloorNumber = new JTextField();
 		var txtApartmentNumber = new JTextField();
 		var txtApartmentType = new JTextField();
 		var txtArea = new JTextField();
-		String[] statusOptions = { "1 - Đang ở", "2 - Trống", "3 - Đang chờ ký hợp đồng", "4 - Đang bảo trì",
-				"5 - Chờ dọn dẹp" };
-		var cbStatus = new JComboBox<>(statusOptions);
 
-		var panel = new JPanel(new GridLayout(6, 2));
+		var panel = new JPanel(new GridLayout(5, 2)); // ⚠️ Giảm số lượng dòng vì bỏ combobox
 		panel.add(new JLabel("Tên tòa nhà:"));
 		panel.add(txtBuildingName);
 		panel.add(new JLabel("Số tầng:"));
@@ -137,15 +240,12 @@ public class RoomManagementPage extends JFrame {
 		panel.add(txtApartmentType);
 		panel.add(new JLabel("Diện tích (m²):"));
 		panel.add(txtArea);
-		panel.add(new JLabel("Trạng thái:"));
-		panel.add(cbStatus);
 
 		var result = JOptionPane.showConfirmDialog(null, panel, "Thêm phòng mới", JOptionPane.OK_CANCEL_OPTION);
 		if (result == JOptionPane.OK_OPTION) {
 			try {
 				var dao = new ApartmentDAO();
 
-				// 🏢 Lấy ID của tòa nhà từ tên
 				var buildingID = dao.getBuildingID(txtBuildingName.getText().trim());
 				if (buildingID == -1) {
 					JOptionPane.showMessageDialog(null, "Lỗi: Tòa nhà không tồn tại!", "Lỗi",
@@ -153,7 +253,6 @@ public class RoomManagementPage extends JFrame {
 					return;
 				}
 
-				// 🏠 Kiểm tra hoặc tạo mới tầng
 				var floorNumber = Integer.parseInt(txtFloorNumber.getText().trim());
 				var floorID = dao.getFloorID(buildingID, floorNumber);
 				if (floorID == -1) {
@@ -164,12 +263,10 @@ public class RoomManagementPage extends JFrame {
 					}
 				}
 
-				// 🏠 Tạo đối tượng Apartment
+				// ⚡ Mặc định trạng thái là 2 (Căn hộ trống)
 				var newApartment = new Apartment(buildingID, floorID, txtApartmentNumber.getText().trim(),
-						txtApartmentType.getText().trim(), Double.parseDouble(txtArea.getText().trim()),
-						cbStatus.getSelectedIndex() + 1);
+						txtApartmentType.getText().trim(), Double.parseDouble(txtArea.getText().trim()), 2);
 
-				// 🔄 Lưu vào database
 				if (dao.addApartment(newApartment)) {
 					JOptionPane.showMessageDialog(null, "Thêm phòng thành công!");
 					loadDataToTable();
