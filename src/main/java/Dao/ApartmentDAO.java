@@ -122,7 +122,7 @@ public class ApartmentDAO {
 			stmt.setString(3, apartment.getApartmentNumber());
 			stmt.setString(4, apartment.getApartmentType());
 			stmt.setDouble(5, apartment.getArea());
-			stmt.setInt(6, 2); // ⚡ Luôn đặt trạng thái mặc định là "Căn hộ trống"
+			stmt.setInt(6, 1); // ⚡ Luôn đặt trạng thái mặc định là "Căn hộ trống"
 
 			return stmt.executeUpdate() > 0;
 		} catch (SQLException e) {

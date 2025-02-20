@@ -167,7 +167,7 @@ public class RoomManagementPage extends JFrame {
 		var txtApartmentType = new JTextField(apartmentType);
 		var txtArea = new JTextField(area);
 
-		String[] statusOptions = { "1 - Đang ở", "2 - Trống", "3 - Đang chờ ký hợp đồng", "4 - Đang bảo trì",
+		String[] statusOptions = { "1 - Căn Hộ Trống", "2 - Đã Cho Thuê", "3 - Chờ ký hợp đồng", "4 - Đang bảo trì",
 				"5 - Chờ dọn dẹp" };
 		var cbStatus = new JComboBox<>(statusOptions);
 		cbStatus.setSelectedIndex(apartmentStatus - 1);
