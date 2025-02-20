@@ -97,7 +97,7 @@ CREATE TABLE contracts (
     ContractStatus NVARCHAR(20) DEFAULT 'Đang hiệu lực',
     FOREIGN KEY (memberID) REFERENCES members(memberID) ON DELETE SET NULL,
     FOREIGN KEY (ApartmentID) REFERENCES Apartments(ApartmentID) ON DELETE SET NULL
-);
+);ergers;igjsegksngsj;dlkgmfdvroedgl
 
 --  Bảng khu vực gửi xe
 DROP TABLE IF EXISTS parking_Area;
