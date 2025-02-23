@@ -132,9 +132,7 @@ public class QuanLyChungCuGUI extends JFrame {
 		addHoverEffect(btnHome); // Thêm hiệu ứng hover
 		// Xử lý sự kiện click nút Home
 		btnHome.addActionListener(e -> {
-			// Tạo và hiển thị trang HomeScreen
-			new HomeScreen().setVisible(true); // Trang chủ HomeScreen sẽ được mở
-			dispose(); // Đóng cửa sổ hiện tại (quản lý chung cư)
+			loadApartmentsToGUI(); // Load lại toàn bộ danh sách căn hộ
 		});
 
 		btnQuanlyphong = new JButton("Quản Lý Phòng");
@@ -435,6 +433,21 @@ public class QuanLyChungCuGUI extends JFrame {
 			}
 		});
 		loadApartmentsToGUI();
+		// 🏠 Lọc danh sách căn hộ trống
+		btnTrong.addActionListener(e -> loadFilteredApartments(1));
+
+		// 🏠 Lọc danh sách căn hộ đã cho thuê
+		btnDaChoThue.addActionListener(e -> loadFilteredApartments(2));
+
+		// 🏠 Lọc danh sách căn hộ chờ ký hợp đồng
+		btnChoKy.addActionListener(e -> loadFilteredApartments(3));
+
+		// 🏠 Lọc danh sách căn hộ đang bảo trì
+		btnBaoTri.addActionListener(e -> loadFilteredApartments(4));
+
+		// 🏠 Lọc danh sách căn hộ chờ dọn dẹp
+		btnDonDep.addActionListener(e -> loadFilteredApartments(5));
+
 	}
 
 	// Phương thức thêm hiệu ứng hover
@@ -679,6 +692,57 @@ public class QuanLyChungCuGUI extends JFrame {
 
 		// Hiển thị frame thùng rác
 		trashFrame.setVisible(true);
+	}
+
+	public void loadFilteredApartments(int status) {
+		var dao = new ApartmentDAO();
+		var apartments = dao.getApartmentsByStatus(status); // Lấy danh sách theo trạng thái
+
+		Floor.removeAll();
+		Floor.revalidate();
+		Floor.repaint();
+
+		var yPos = 10;
+		var floorNumber = -1;
+		JPanel floorPanel = null;
+
+		for (Apartment apt : apartments) {
+			if (apt.getFloorID() != floorNumber) {
+				floorNumber = apt.getFloorID();
+				var floorLabel = new JLabel("Tầng " + floorNumber);
+				floorLabel.setFont(new Font("Arial", Font.BOLD, 14));
+				floorLabel.setBounds(10, yPos, 200, 20);
+				Floor.add(floorLabel);
+				yPos += 30;
+
+				floorPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
+				floorPanel.setBounds(10, yPos, 900, 120);
+				Floor.add(floorPanel);
+				yPos += 130;
+			}
+
+			var roomPanel = new JPanel();
+			roomPanel.setBorder(new TitledBorder(new EtchedBorder(), "Căn hộ " + apt.getApartmentNumber()));
+			roomPanel.setBackground(getStatusColor(apt.getApartmentsStatus()));
+			roomPanel.setPreferredSize(new Dimension(150, 100));
+
+			var popupMenu = new JPopupMenu();
+			var itemSetStatus = new JMenuItem("Cập nhật trạng thái");
+			popupMenu.add(itemSetStatus);
+			itemSetStatus.addActionListener(e -> showStatusDialog(apt));
+			roomPanel.setComponentPopupMenu(popupMenu);
+
+			roomPanel.addMouseListener(new java.awt.event.MouseAdapter() {
+				@Override
+				public void mousePressed(java.awt.event.MouseEvent evt) {
+					if (evt.getButton() == java.awt.event.MouseEvent.BUTTON1) {
+						showOwnerInfo(apt.getApartmentID());
+					}
+				}
+			});
+
+			floorPanel.add(roomPanel);
+		}
 	}
 
 }

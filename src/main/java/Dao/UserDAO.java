@@ -93,7 +93,7 @@ public class UserDAO {
 
 			// Nếu thêm thành công, cập nhật trạng thái căn hộ thành "Đã cho thuê"
 			if (inserted) {
-				updateApartmentStatus(apartmentID, 2); // 2 = Đã cho thuê
+				updateApartmentStatus(apartmentID, 2); // 2 = đã cho thuê
 			}
 			return inserted;
 		} catch (SQLException e) {

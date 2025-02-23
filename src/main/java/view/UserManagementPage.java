@@ -126,7 +126,7 @@ public class UserManagementPage extends JFrame {
 		for (User u : users) {
 			var imageIcon = loadImageIcon(u.getIdentityImage(), 80, 80); // Load ảnh với kích thước 80x80
 			tableModel.addRow(new Object[] { u.getMemberID(), u.getMemberName(), u.getPhone(), u.getEmail(),
-					u.getCountry(), u.getApartmentID(), imageIcon });
+					u.getCountry(), u.getApartmentNumber(), imageIcon });
 		}
 	}
 
