@@ -154,6 +154,25 @@ public class ApartmentDAO {
 		return apartments;
 	}
 
+	public List<Apartment> getApartmentsByStatus(int status) {
+		List<Apartment> apartments = new ArrayList<>();
+		var sql = "SELECT * FROM Apartments WHERE Apartments_Status = ?";
+
+		try (var conn = ConnectDB.getCon(); var stmt = conn.prepareStatement(sql)) {
+			stmt.setInt(1, status);
+			try (var rs = stmt.executeQuery()) {
+				while (rs.next()) {
+					apartments.add(new Apartment(rs.getInt("ApartmentID"), rs.getInt("BuildingID"),
+							rs.getInt("FloorID"), rs.getString("ApartmentNumber"), rs.getString("ApartmentType"),
+							rs.getDouble("Area"), rs.getInt("Apartments_Status")));
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return apartments;
+	}
+
 	public boolean updateApartmentStatus(int apartmentID, int status) {
 		var sql = "UPDATE Apartments SET Apartments_Status = ? WHERE ApartmentID = ?"; // Đảm bảo tên cột đúng
 
