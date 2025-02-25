@@ -7,7 +7,18 @@ GO
 
 USE apartment;
 GO
+--bảng login
+DROP TABLE IF EXISTS Login;
+CREATE TABLE Login (
+    memberID INT IDENTITY PRIMARY KEY, 
+    username NVARCHAR(50), 
+    pass NVARCHAR(255), 
+	email NVARCHAR(50),
+	jobRole NVARCHAR(50) NOT NULL DEFAULT 'user',
+    loginStatus BIT DEFAULT 1
+);
 
+GO
 --  Bảng tòa nhà
 DROP TABLE IF EXISTS Building;
 CREATE TABLE Building (
@@ -46,23 +57,26 @@ CREATE TABLE Apartments (
 --  Bảng quản lý thành viên
 DROP TABLE IF EXISTS members;
 CREATE TABLE members (
-    memberID INT IDENTITY PRIMARY KEY, 
+    memberID INT PRIMARY KEY, 
     memberName NVARCHAR(100) NOT NULL,
-    avatar NVARCHAR(500),
-    country NVARCHAR(200),
-    dob DATE NULL,
-    StartDate DATE NULL,
-    EndDate DATE NULL,
-    quantity INT,
-    Phone NVARCHAR(15),
-    Email NVARCHAR(100),
-    verifyCode INT,  
-    gender BIT, 
+    avatar NVARCHAR(500) NULL,
+    country NVARCHAR(200) NULL,
+    dob DATE NULL,  
+    StartDate DATE NULL,  
+    EndDate DATE NULL,  
+    quantity INT NULL,
+    Phone NVARCHAR(15) NULL,
+    cccd NVARCHAR(100) NULL,
+    verifyCode INT NULL,  
+    gender BIT NULL, 
     apartmentID INT NULL,
-    memberStatus BIT, 
+    memberStatus BIT NULL, 
+    identityImage NVARCHAR(500) NULL,
+    FOREIGN KEY (memberID) REFERENCES Login (memberID),
     FOREIGN KEY (apartmentID) REFERENCES Apartments(ApartmentID) ON DELETE SET NULL
 );
-ALTER TABLE members ADD identityImage NVARCHAR(500);
+
+
 
 --  Bảng dịch vụ chung cư
 DROP TABLE IF EXISTS services;
@@ -175,7 +189,7 @@ INSERT INTO floor (BuildingID, FloorNumber, FloorName)
 VALUES (1, 1, 'Tầng 1'),
        (1, 2, 'Tầng 2'),
        (1, 3, 'Tầng 3');
-
+go
 INSERT INTO Apartments (BuildingID, FloorID, ApartmentNumber, ApartmentType, Area, Apartments_Status)
 VALUES (1, 1, '101', '2PN', 50, 1),
        (1, 2, '201', '3PN', 75, 1),
@@ -197,7 +211,7 @@ VALUES (1, 1, '101', '2PN', 50, 1),
 FROM Apartments a
 LEFT JOIN floor f ON a.FloorID = f.FloorID
 LEFT JOIN Building b ON a.BuildingID = b.BuildingID;
-
+go
 --trigger
 CREATE TRIGGER trg_DefaultDate ON members
 AFTER INSERT
@@ -209,3 +223,40 @@ BEGIN
         EndDate = COALESCE(EndDate, GETDATE())
     WHERE memberID IN (SELECT memberID FROM inserted);
 END;
+go
+INSERT INTO Login (username, pass, jobRole, loginStatus)
+VALUES 
+    ('admin', '1', 'admin', 1)
+go
+
+INSERT INTO Login (username, pass, email, jobRole, loginStatus)
+VALUES 
+    ('u2', '1', 'lebao545@gmail.com', 'user', 1),
+    ('u1', '1', 'lebao545@gmail.com', 'user', 0);
+go
+SELECT * FROM Login WHERE username = 'baobao123' AND email = 'leoba545@gmail.com'
+go
+INSERT INTO members (memberID, memberName, avatar, country, dob, StartDate, EndDate, quantity, Phone, cccd, verifyCode, gender, apartmentID, memberStatus)
+VALUES 
+(2, 'Nguyen Van A', 'resources\image\avt.jpg', 'Vietnam', '1990-05-12', '2024-01-01', '2025-01-01', 3, '0987654321', '123456789', 9876, 1, 1, 1),
+(3, 'Tran Thi B', 'avatar2.jpg', 'Vietnam', '1995-09-23', '2024-02-15', '2025-02-15', 2, '0976543210', '987654321', 5432, 0, 2, 1);
+SELECT * FROM members WHERE memberID = 2
+select *from Login
+SELECT*FROM members
+SELECT *FROM Login l
+JOIN members m ON l.memberID = m.memberID;
+go
+CREATE TRIGGER trg_AfterInsertLogin
+ON Login
+AFTER INSERT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Chỉ chèn memberID và memberName, các cột khác sẽ nhận giá trị NULL mặc định
+    INSERT INTO members (memberID, memberName)
+    SELECT memberID, 'New Member' FROM inserted;
+END;
+GO
+
+

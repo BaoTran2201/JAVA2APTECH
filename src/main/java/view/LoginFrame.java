@@ -1,120 +1,184 @@
 package view;
 
-import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-import javax.swing.JLabel;
-import javax.swing.ImageIcon;
-import javax.swing.SwingConstants;
-import javax.swing.UIManager;
-
-import java.awt.Font;
 import java.awt.Color;
-import javax.swing.JTextField;
-import javax.swing.JPasswordField;
-import javax.swing.JCheckBox;
+import java.awt.Cursor;
+import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+
+import Dao.LoginDAO;
 
 public class LoginFrame extends JFrame {
 
-	private static final long serialVersionUID = 1L;
-	private JPanel contentPane;
-	private JLabel lblImage;
-	private JLabel lblLogin;
-	private JLabel lblUsername;
-	private JTextField textUser;
-	private JLabel lblPassword;
-	private JPasswordField passwordField;
-	private JCheckBox chckbxremember;
-	private JLabel lblForgot;
-	private JButton btnLoginButton;
+    private static final long serialVersionUID = 1L;
+    private JPanel contentPane;
+    private JLabel lblLogin;
+    private JLabel lblUsername;
+    private JTextField textUser;
+    private JLabel lblPassword;
+    private JPasswordField passwordField;
+    private JLabel lblForgot;
+    private JButton btnLoginButton;
+    private JButton btnBack;
+    private JLabel lblImage;
+	private JLabel lblRegister;
 
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					LoginFrame frame = new LoginFrame();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+    public static void main(String[] args) {
+        EventQueue.invokeLater(() -> {
+            try {
+                var frame = new LoginFrame();
+                frame.setVisible(true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public LoginFrame() {
+        setTitle("Login Form");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setBounds(100, 100, 1292, 889);
+        contentPane = new JPanel();
+        contentPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        setContentPane(contentPane);
+        contentPane.setLayout(null);
+
+        // Nút Back
+        btnBack = new JButton("◄ Back");
+        btnBack.setFont(new Font("Arial", Font.BOLD, 16));
+        btnBack.setForeground(Color.WHITE);
+        btnBack.setBackground(new Color(64, 128, 128));
+        btnBack.setBorder(null);
+        btnBack.setFocusPainted(false);
+        btnBack.setContentAreaFilled(false);
+        btnBack.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnBack.setBounds(20, 20, 100, 30);
+        btnBack.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+			public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btnBack.setForeground(new Color(200, 200, 200));
+            }
+            @Override
+			public void mouseExited(java.awt.event.MouseEvent evt) {
+                btnBack.setForeground(Color.WHITE);
+            }
+        });
+        contentPane.add(btnBack);
+
+        lblLogin = new JLabel("LOGIN");
+        lblLogin.setForeground(new Color(64, 128, 128));
+        lblLogin.setFont(new Font("Arial", Font.BOLD, 30));
+        lblLogin.setHorizontalAlignment(SwingConstants.CENTER);
+        lblLogin.setBounds(518, 232, 209, 58);
+        contentPane.add(lblLogin);
+
+        lblUsername = new JLabel("Username:");
+        lblUsername.setForeground(new Color(64, 128, 128));
+        lblUsername.setFont(new Font("Arial", Font.BOLD, 20));
+        lblUsername.setBounds(443, 301, 115, 26);
+        contentPane.add(lblUsername);
+
+        textUser = new JTextField();
+        textUser.setBounds(613, 301, 209, 26);
+        contentPane.add(textUser);
+        textUser.setColumns(10);
+
+        lblPassword = new JLabel("Password:");
+        lblPassword.setForeground(new Color(64, 128, 128));
+        lblPassword.setFont(new Font("Arial", Font.BOLD, 20));
+        lblPassword.setBounds(443, 370, 115, 26);
+        contentPane.add(lblPassword);
+
+        passwordField = new JPasswordField();
+        passwordField.setBounds(613, 370, 209, 26);
+        contentPane.add(passwordField);
+
+        lblForgot = new JLabel("Forgot Password?");
+        lblForgot.setForeground(new Color(0, 0, 255));
+        lblForgot.setFont(new Font("Arial", Font.BOLD | Font.ITALIC, 12));
+        lblForgot.setBounds(717, 407, 105, 14);
+        lblForgot.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        lblForgot.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+			public void mouseClicked(java.awt.event.MouseEvent evt) {
+                new ForgotPasswordFrame().setVisible(true);
+                dispose();
+            }
+        });
+        contentPane.add(lblForgot);
+
+        btnLoginButton = new JButton("LOGIN");
+		btnLoginButton.addActionListener(this::btnLoginButtonActionPerformed);
+		btnLoginButton.setForeground(new Color(0, 0, 0));
+		btnLoginButton.setFont(new Font("Arial", Font.BOLD | Font.ITALIC, 12));
+        btnLoginButton.setBackground(new Color(64, 128, 128));
+        btnLoginButton.setBounds(546, 496, 179, 36);
+        contentPane.add(btnLoginButton);
+
+        // Ảnh nền
+        lblImage = new JLabel("");
+        lblImage.setIcon(new ImageIcon("C:\\java\\ApartmentManagement\\src\\main\\resources\\image\\apartment1.jpg"));
+		lblImage.setBounds(103, -24, 1276, 850);
+        contentPane.add(lblImage);
+
+		var lblRegister = new JLabel("Register");
+		lblRegister.setForeground(new Color(0, 0, 255)); // Màu xanh giống link
+		lblRegister.setFont(new Font("Arial", Font.BOLD | Font.ITALIC, 12));
+		lblRegister.setBounds(717, 440, 105, 14);
+		lblRegister.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		lblRegister.setOpaque(false);
+		lblRegister.addMouseListener(new java.awt.event.MouseAdapter() {
+			@Override
+			public void mouseClicked(java.awt.event.MouseEvent evt) {
+				new RegisterFrame().setVisible(true); // Mở giao diện đăng ký
+				dispose(); // Đóng cửa sổ hiện tại (nếu cần)
 			}
 		});
-	}
+		contentPane.add(lblRegister);
 
-	/**
-	 * Create the frame.
-	 */
-	public LoginFrame() {
-		setTitle("Login_Form\r\n");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 1292, 889);
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+    }
 
-		setContentPane(contentPane);
-		contentPane.setLayout(null);
-		
-		lblLogin = new JLabel("LOGIN");
-		lblLogin.setForeground(new Color(64, 128, 128));
-		lblLogin.setFont(new Font("Arial", Font.BOLD, 30));
-		lblLogin.setHorizontalAlignment(SwingConstants.CENTER);
-		lblLogin.setBounds(518, 232, 209, 58);
-		contentPane.add(lblLogin);
-		
-		lblUsername = new JLabel("Username\r\n:");
-		lblUsername.setForeground(new Color(64, 128, 128));
-		lblUsername.setFont(new Font("Arial", Font.BOLD, 20));
-		lblUsername.setBounds(443, 301, 115, 26);
-		contentPane.add(lblUsername);
-		
-		textUser = new JTextField();
-		textUser.setBackground(new Color(255, 255, 255));
-		textUser.setForeground(new Color(0, 0, 0));
-		textUser.setBounds(613, 301, 209, 26);
-		contentPane.add(textUser);
-		textUser.setColumns(10);
-		
-		lblPassword = new JLabel("Password: ");
-		lblPassword.setForeground(new Color(64, 128, 128));
-		lblPassword.setFont(new Font("Arial", Font.BOLD, 20));
-		lblPassword.setBounds(443, 370, 115, 26);
-		contentPane.add(lblPassword);
-		
-		passwordField = new JPasswordField();
-		passwordField.setBounds(613, 370, 209, 26);
-		contentPane.add(passwordField);
-		
-		chckbxremember = new JCheckBox("Remember Password");
-		chckbxremember.setForeground(new Color(255, 255, 255));
-		chckbxremember.setFont(new Font("Arial", Font.BOLD, 12));
-		chckbxremember.setBounds(457, 428, 161, 23);
-		contentPane.add(chckbxremember);
-		chckbxremember.setOpaque(false);
-		chckbxremember.setBackground(new Color(0, 0, 0, 0)); // Trong suốt
+	protected void btnLoginButtonActionPerformed(ActionEvent e) {
+		var dao = new LoginDAO();
+		var username = textUser.getText().trim();
+		var password = new String(passwordField.getPassword()).trim();
 
-		
-		lblForgot = new JLabel("Forgot Password?");
-		lblForgot.setForeground(new Color(0, 0, 255));
-		lblForgot.setFont(new Font("Arial", Font.BOLD | Font.ITALIC, 12));
-		lblForgot.setBounds(717, 407, 105, 14);
-		contentPane.add(lblForgot);
-		
-		btnLoginButton = new JButton("LOGIN");
-		btnLoginButton.setForeground(new Color(255, 255, 255));
-		btnLoginButton.setFont(new Font("Arial", Font.BOLD, 15));
-		btnLoginButton.setBackground(new Color(64, 128, 128));
-		btnLoginButton.setBounds(546, 496, 179, 36);
-		contentPane.add(btnLoginButton);
-		
-		lblImage = new JLabel("");
-		lblImage.setIcon(new ImageIcon("C:\\java\\ApartmentManagement\\src\\main\\resources\\image\\apartment1.jpg"));
-		lblImage.setBounds(0, 0, 1276, 850);
-		contentPane.add(lblImage);
+		if (username.isEmpty() || password.isEmpty()) {
+			JOptionPane.showMessageDialog(this, "Please enter both username and password!", "Error",
+					JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+
+		var tk = dao.selectByUser(username);
+
+		if (tk == null) {
+			JOptionPane.showMessageDialog(this, "Your account does not have in the system!", "Warning!",
+					JOptionPane.WARNING_MESSAGE);
+		} else if (!tk.isLoginStatus()) {
+			JOptionPane.showMessageDialog(this, "Your account is locked!", "Warning!", JOptionPane.WARNING_MESSAGE);
+		} else if (!tk.getPass().equals(password)) {
+			JOptionPane.showMessageDialog(this, "Incorrect password!", "Login Error", JOptionPane.ERROR_MESSAGE);
+		} else {
+			JOptionPane.showMessageDialog(this, "Login successful!", "Information", JOptionPane.INFORMATION_MESSAGE);
+			var userID = tk.getMemberID(); // Lấy ID của user
+
+			switch (tk.getJobRole()) {
+			case "admin" -> new QuanLyChungCuGUI().setVisible(true);
+			case "user" -> new CustomerPage(userID).setVisible(true);
+			}
+			this.dispose();
+		}
+
 	}
 }
