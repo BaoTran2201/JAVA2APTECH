@@ -42,7 +42,7 @@ public class PaymentManagement extends JFrame {
 
         JLabel lblTitle = new JLabel("Quản Lý Thanh Toán", JLabel.CENTER);
         lblTitle.setForeground(Color.WHITE);
-        lblTitle.setFont(new Font("Arial", Font.BOLD, 24));
+        lblTitle.setFont(new Font("Arial", Font.BOLD, 25));
 
         panelTitle.add(btnBack, BorderLayout.WEST);
         panelTitle.add(lblTitle, BorderLayout.CENTER);
