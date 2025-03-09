@@ -3,54 +3,50 @@ package view;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.io.File;
-import java.io.IOException;
-import java.sql.Date;
-import java.util.List;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 import javax.imageio.ImageIO;
-import javax.swing.ButtonGroup;
+import javax.swing.AbstractButton;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
-import Dao.UserDAO;
-import model.User;
+import com.toedter.calendar.JDateChooser;
+
+import Dao.ApartmentDAO;
+import Dao.MemberDAO;
 
 public class UserManagementPage extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JTable table;
 	private DefaultTableModel tableModel;
-	private String selectedImagePath = null;
-
-	// 🟢 Constructor mặc định: Hiển thị toàn bộ danh sách user
+	private int editingMemberID = -1; // Lưu ID của user đang chỉnh sửa
+	private AbstractButton txtMemberID;
 	public UserManagementPage() {
 		initUI();
-		loadDataToTable(null);
-	}
-
-	// 🟢 Constructor: Hiển thị thông tin chủ sở hữu căn hộ
-	public UserManagementPage(User owner) {
-		initUI();
-		loadDataToTable(owner);
+		loadDataToTable();
 	}
 
 	private void initUI() {
@@ -62,10 +58,10 @@ public class UserManagementPage extends JFrame {
 		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
 
-		// 🏷️ Panel tiêu đề
+		// Panel tiêu đề
 		var panelTitle = new JPanel(new BorderLayout());
 		panelTitle.setBackground(new Color(64, 128, 128));
-		var lblTitle = new JLabel("Quản Lý Người Dùng", JLabel.CENTER);
+		var lblTitle = new JLabel("User Management", JLabel.CENTER);
 		lblTitle.setForeground(Color.WHITE);
 		lblTitle.setFont(new Font("Arial", Font.BOLD, 24));
 
@@ -81,282 +77,328 @@ public class UserManagementPage extends JFrame {
 			new QuanLyChungCuGUI().setVisible(true);
 			dispose();
 		});
+
 		panelTitle.add(btnBack, BorderLayout.WEST);
 		panelTitle.add(lblTitle, BorderLayout.CENTER);
 		contentPane.add(panelTitle, BorderLayout.NORTH);
 
-		// 🏷️ Bảng dữ liệu
-		String[] columnNames = { "ID", "Họ Tên", "Số Điện Thoại", "Email", "Quốc Gia", "Căn Hộ", "Ảnh Giấy Tờ" };
+		// Bảng dữ liệu
+		String[] columnNames = { "ID", "FULLNAME", "GENDER", "BIRTH", "PHONE", "CCCD", "COUNTRY", "NUM OF MEMBERS",
+				"APARTMENT ID", "START DATE", "END DATE", "PHOTO" };
+
 		tableModel = new DefaultTableModel(columnNames, 0) {
 			@Override
+			public boolean isCellEditable(int row, int column) {
+				return false; // Ngăn không cho chỉnh sửa bất kỳ ô nào
+			}
+			@Override
 			public Class<?> getColumnClass(int column) {
-				return (column == 6) ? ImageIcon.class : Object.class; // Cột ảnh sử dụng ImageIcon
+				return (column == 11) ? ImageIcon.class : Object.class; // Cột ảnh nằm ở vị trí 11
 			}
 		};
 
 		table = new JTable(tableModel);
-		table.setRowHeight(80); // 🔥 Tăng chiều cao hàng để hiển thị ảnh rõ hơn
-		table.getColumnModel().getColumn(6).setCellRenderer(new ImageRenderer()); // Sử dụng ImageRenderer
+		table.setRowHeight(80); // Đảm bảo đủ chỗ hiển thị ảnh
+
+		// Set Renderer cho cột ảnh
+		table.getColumnModel().getColumn(11).setCellRenderer(new ImageRenderer());
 
 		contentPane.add(new JScrollPane(table), BorderLayout.CENTER);
-		// 🏷️ Panel nút chức năng
+
+		// Panel nút chức năng
 		var panelBottom = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
 		panelBottom.setBackground(new Color(64, 128, 128));
-
-		var btnThem = new JButton("Thêm");
-		btnThem.addActionListener(e -> themUser());
-
-		var btnSua = new JButton("Sửa");
+		var btnSua = new JButton("Update");
 		btnSua.addActionListener(e -> suaUser());
-
-		var btnXoa = new JButton("Xóa");
+		var btnXoa = new JButton("Delete");
 		btnXoa.addActionListener(e -> xoaUser());
-
-		panelBottom.add(btnThem);
 		panelBottom.add(btnSua);
 		panelBottom.add(btnXoa);
 		contentPane.add(panelBottom, BorderLayout.SOUTH);
+
 	}
 
-	private void loadDataToTable(User owner) {
+	private void loadDataToTable() {
+		var dao = new MemberDAO();
+		var userList = dao.getAllMembers();
+
+		var formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
 		tableModel.setRowCount(0);
-		var dao = new UserDAO();
-		var users = (owner == null) ? dao.getAllUsers() : List.of(owner);
-
-		for (User u : users) {
-			var imageIcon = loadImageIcon(u.getIdentityImage(), 80, 80); // Load ảnh với kích thước 80x80
-			tableModel.addRow(new Object[] { u.getMemberID(), u.getMemberName(), u.getPhone(), u.getEmail(),
-					u.getCountry(), u.getApartmentNumber(), imageIcon });
-		}
+		userList.forEach(user -> tableModel.addRow(new Object[] { user.getMemberID(), user.getMemberName(),
+				user.isGender() ? "MALE" : "FEMALE", user.getDob().format(formatter), // Chuyển LocalDate thành String
+				user.getPhone(), user.getCccd(), user.getCountry(), user.getQuantity(), user.getApartmentID(),
+				user.getStartDate().format(formatter), // Chuyển LocalDate thành String
+				user.getEndDate().format(formatter), // Chuyển LocalDate thành String
+				loadImageIcon(user.getAvatar(), 80, 80) }));
 	}
 
-	// 🔹 Hàm tải ảnh từ đường dẫn và chuyển thành ImageIcon
 	private ImageIcon loadImageIcon(String imagePath, int width, int height) {
-		if (imagePath == null || imagePath.isEmpty()) {
-			return new ImageIcon(); // Tránh lỗi nếu không có ảnh
-		}
-
 		try {
 			var imgFile = new File(imagePath);
-			if (!imgFile.exists()) {
-				return new ImageIcon(); // Tránh lỗi file không tồn tại
-			}
-
-			var img = ImageIO.read(imgFile);
+			Image img = ImageIO.read(imgFile);
 			var scaledImg = img.getScaledInstance(width, height, Image.SCALE_SMOOTH);
 			return new ImageIcon(scaledImg);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			return new ImageIcon();
 		}
 	}
 
-	// 🔹 Renderer để hiển thị hình ảnh trong JTable
+	// Renderer để hiển thị hình ảnh trong JTable
 	private class ImageRenderer extends DefaultTableCellRenderer {
+		/**
+		 *
+		 */
+		private static final long serialVersionUID = 1L;
+
 		@Override
 		protected void setValue(Object value) {
 			if (value instanceof ImageIcon) {
 				setIcon((ImageIcon) value);
-				setText(""); // Xóa nội dung text
+				setText("");
 			} else {
 				super.setValue(value);
 			}
 		}
 	}
 
-	// 🔹 Thêm người dùng mới
-	private void themUser() {
-		var frame = new JFrame("Thêm Người Dùng");
-		frame.setSize(800, 600);
-		frame.setLocationRelativeTo(null);
-		frame.setLayout(new BorderLayout());
-		frame.setAlwaysOnTop(true);
+//sửa
+	private void suaUser() {
+	    var selectedRow = table.getSelectedRow();
+	    if (selectedRow == -1) {
+	        JOptionPane.showMessageDialog(this, "Please choose user!", "Information!",
+	                JOptionPane.WARNING_MESSAGE);
+	        return;
+	    }
 
-		// 🌟 Tiêu đề
-		var panelTitle = new JPanel(new BorderLayout());
-		panelTitle.setBackground(new Color(64, 128, 128));
+		editingMemberID = (int) tableModel.getValueAt(selectedRow, 0);
+	    var fullName = (String) tableModel.getValueAt(selectedRow, 1);
+	    var gender = (String) tableModel.getValueAt(selectedRow, 2);
+	    var birthStr = (String) tableModel.getValueAt(selectedRow, 3);
+	    var phone = (String) tableModel.getValueAt(selectedRow, 4);
+	    var cccd = (String) tableModel.getValueAt(selectedRow, 5);
+	    var country = (String) tableModel.getValueAt(selectedRow, 6);
+	    var numOfMembers = (int) tableModel.getValueAt(selectedRow, 7);
+	    var apartmentID = (int) tableModel.getValueAt(selectedRow, 8);
+	    var startDateStr = (String) tableModel.getValueAt(selectedRow, 9);
+	    var endDateStr = (String) tableModel.getValueAt(selectedRow, 10);
+	    var formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+	    var birthDate = LocalDate.parse(birthStr, formatter);
+	    var startDate = LocalDate.parse(startDateStr, formatter);
+	    var endDate = LocalDate.parse(endDateStr, formatter);
 
-		var lblTitle = new JLabel("Thêm Người Dùng", JLabel.CENTER);
-		lblTitle.setForeground(Color.WHITE);
-		lblTitle.setFont(new Font("Arial", Font.BOLD, 22));
+	    var editDialog = new JDialog(this, "Edit User", true);
+	    editDialog.setSize(450, 500);
+	    editDialog.setLocationRelativeTo(this);
+	    editDialog.setLayout(new BorderLayout());
 
-		var btnClose = new JButton("✖");
-		btnClose.setFont(new Font("Arial", Font.BOLD, 18));
-		btnClose.setForeground(Color.WHITE);
-		btnClose.setBackground(new Color(64, 128, 128));
-		btnClose.setBorder(null);
-		btnClose.setFocusPainted(false);
-		btnClose.setContentAreaFilled(false);
-		btnClose.setCursor(new Cursor(Cursor.HAND_CURSOR));
-		btnClose.addActionListener(e -> frame.dispose());
+	    var formPanel = new JPanel(new GridLayout(0, 2, 10, 10)); // GridLayout với khoảng cách
+	    formPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+	    formPanel.setBackground(new Color(240, 248, 255)); // Màu nền nhẹ
 
-		panelTitle.add(lblTitle, BorderLayout.CENTER);
-		panelTitle.add(btnClose, BorderLayout.EAST);
-		frame.add(panelTitle, BorderLayout.NORTH);
+	    var lblFullName = new JLabel("Full Name:");
+	    lblFullName.setFont(new Font("Arial", Font.BOLD, 13));
+	    var txtFullName = new JTextField(fullName);
 
-		// 🌟 Nội dung form
-		var panelForm = new JPanel(new GridLayout(13, 2, 15, 15));
-		panelForm.setBorder(new EmptyBorder(20, 30, 20, 30));
+	    var lblGender = new JLabel("Gender:");
+	    lblGender.setFont(new Font("Arial", Font.BOLD, 13));
+	    var cmbGender = new JComboBox<>(new String[]{"MALE", "FEMALE"});
+	    cmbGender.setSelectedItem(gender);
 
-		var txtFullName = new JTextField();
-		var txtPhone = new JTextField();
-		var txtEmail = new JTextField();
-		var txtCountry = new JTextField();
-		var txtApartmentNumber = new JTextField();
-		var txtDob = new JTextField("yyyy-MM-dd");
-		var txtStartDate = new JTextField("yyyy-MM-dd");
-		var txtEndDate = new JTextField("yyyy-MM-dd");
-		var txtQuantity = new JTextField();
-		var txtVerifyCode = new JTextField();
-		var lblImagePreview = new JLabel("Chưa chọn ảnh");
+	    var lblBirthDate = new JLabel("Birth Date:");
+	    lblBirthDate.setFont(new Font("Arial", Font.BOLD, 13));
+	    var birthChooser = new JDateChooser();
+	    birthChooser.setDate(Date.from(birthDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+	    birthChooser.setDateFormatString("yyyy-MM-dd");
 
-		// 🔹 Chọn giới tính bằng RadioButton
-		var maleRadio = new JRadioButton("Nam");
-		var femaleRadio = new JRadioButton("Nữ");
-		var genderGroup = new ButtonGroup();
-		genderGroup.add(maleRadio);
-		genderGroup.add(femaleRadio);
-		maleRadio.setSelected(true);
+	    var lblPhone = new JLabel("Phone:");
+	    lblPhone.setFont(new Font("Arial", Font.BOLD, 13));
+	    var txtPhone = new JTextField(phone);
 
-		var genderPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-		genderPanel.add(maleRadio);
-		genderPanel.add(femaleRadio);
+	    var lblCCCD = new JLabel("CCCD:");
+	    lblCCCD.setFont(new Font("Arial", Font.BOLD, 13));
+	    var txtCCCD = new JTextField(cccd);
 
-		// 🔹 Chọn ảnh giấy tờ tùy thân
-		var btnUpload = new JButton("Chọn ảnh");
-		btnUpload.setFont(new Font("Arial", Font.BOLD, 14));
-		btnUpload.setCursor(new Cursor(Cursor.HAND_CURSOR));
-		btnUpload.addActionListener(e -> {
-			var fileChooser = new JFileChooser();
-			fileChooser.setFileFilter(new FileNameExtensionFilter("Hình ảnh", "jpg", "png", "jpeg"));
-			var result = fileChooser.showOpenDialog(frame);
-			if (result == JFileChooser.APPROVE_OPTION) {
-				var selectedFile = fileChooser.getSelectedFile();
-				selectedImagePath = selectedFile.getAbsolutePath();
-				lblImagePreview.setText(selectedFile.getName());
-			}
-		});
+	    var lblCountry = new JLabel("Country:");
+	    lblCountry.setFont(new Font("Arial", Font.BOLD, 13));
+	    var txtCountry = new JTextField(country);
 
-		// 🔹 Thêm các thành phần vào form
-		panelForm.add(new JLabel("Họ và tên:"));
-		panelForm.add(txtFullName);
-		panelForm.add(new JLabel("Số điện thoại:"));
-		panelForm.add(txtPhone);
-		panelForm.add(new JLabel("Email:"));
-		panelForm.add(txtEmail);
-		panelForm.add(new JLabel("Quốc gia:"));
-		panelForm.add(txtCountry);
-		panelForm.add(new JLabel("Ngày sinh (yyyy-MM-dd):"));
-		panelForm.add(txtDob);
-		panelForm.add(new JLabel("Ngày bắt đầu (yyyy-MM-dd):"));
-		panelForm.add(txtStartDate);
-		panelForm.add(new JLabel("Ngày kết thúc (yyyy-MM-dd):"));
-		panelForm.add(txtEndDate);
-		panelForm.add(new JLabel("Số lượng thành viên:"));
-		panelForm.add(txtQuantity);
-		panelForm.add(new JLabel("Mã xác nhận:"));
-		panelForm.add(txtVerifyCode);
-		panelForm.add(new JLabel("Căn hộ:"));
-		panelForm.add(txtApartmentNumber);
-		panelForm.add(new JLabel("Giới tính:"));
-		panelForm.add(genderPanel);
-		panelForm.add(btnUpload);
-		panelForm.add(lblImagePreview);
+	    var lblNumMembers = new JLabel("Num of Members:");
+	    lblNumMembers.setFont(new Font("Arial", Font.BOLD, 13));
+	    var txtNumOfMembers = new JTextField(String.valueOf(numOfMembers));
 
-		frame.add(panelForm, BorderLayout.CENTER);
+	    var lblApartmentID = new JLabel("Apartment ID:");
+	    lblApartmentID.setFont(new Font("Arial", Font.BOLD, 13));
+	    var txtApartmentID = new JTextField(String.valueOf(apartmentID));
 
-		// 🌟 Panel nút chức năng
-		var panelBottom = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
-		panelBottom.setBackground(new Color(64, 128, 128));
+	    var lblStartDate = new JLabel("Start Date:");
+	    lblStartDate.setFont(new Font("Arial", Font.BOLD, 13));
+	    var startDateChooser = new JDateChooser();
+	    startDateChooser.setDate(Date.from(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+	    startDateChooser.setDateFormatString("yyyy-MM-dd");
 
-		var btnThem = new JButton("Thêm");
-		btnThem.setFont(new Font("Arial", Font.BOLD, 16));
-		btnThem.setForeground(Color.WHITE);
-		btnThem.setBackground(new Color(34, 177, 76));
-		btnThem.setBorder(new LineBorder(new Color(0, 102, 51), 2, true));
-		btnThem.setCursor(new Cursor(Cursor.HAND_CURSOR));
+	    var lblEndDate = new JLabel("End Date:");
+	    lblEndDate.setFont(new Font("Arial", Font.BOLD, 13));
+	    var endDateChooser = new JDateChooser();
+	    endDateChooser.setDate(Date.from(endDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+	    endDateChooser.setDateFormatString("yyyy-MM-dd");
+		startDateChooser.getDateEditor().getUiComponent().setEnabled(false);
+		startDateChooser.getDateEditor().getUiComponent().setFocusable(false);
 
-		var btnHuy = new JButton("Hủy");
-		btnHuy.setFont(new Font("Arial", Font.BOLD, 16));
-		btnHuy.setForeground(Color.WHITE);
-		btnHuy.setBackground(new Color(192, 57, 43));
-		btnHuy.setBorder(new LineBorder(new Color(139, 0, 0), 2, true));
-		btnHuy.setCursor(new Cursor(Cursor.HAND_CURSOR));
-		btnHuy.addActionListener(e -> frame.dispose());
+		endDateChooser.getDateEditor().getUiComponent().setEnabled(false);
+		endDateChooser.getDateEditor().getUiComponent().setFocusable(false);
 
-		btnThem.addActionListener(e -> {
+	    // Thêm vào Panel
+	    formPanel.add(lblFullName);
+	    formPanel.add(txtFullName);
+	    formPanel.add(lblGender);
+	    formPanel.add(cmbGender);
+	    formPanel.add(lblBirthDate);
+	    formPanel.add(birthChooser);
+	    formPanel.add(lblPhone);
+	    formPanel.add(txtPhone);
+	    formPanel.add(lblCCCD);
+	    formPanel.add(txtCCCD);
+	    formPanel.add(lblCountry);
+	    formPanel.add(txtCountry);
+	    formPanel.add(lblNumMembers);
+	    formPanel.add(txtNumOfMembers);
+	    formPanel.add(lblApartmentID);
+	    formPanel.add(txtApartmentID);
+	    formPanel.add(lblStartDate);
+	    formPanel.add(startDateChooser);
+	    formPanel.add(lblEndDate);
+	    formPanel.add(endDateChooser);
+
+	    // Button Panel
+	    var buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+	    var btnSave = new JButton("Lưu");
+	    btnSave.setBackground(new Color(34, 139, 34));
+	    btnSave.setForeground(Color.WHITE);
+	    btnSave.setFont(new Font("Arial", Font.BOLD, 13));
+	    btnSave.setPreferredSize(new Dimension(100, 35));
+		btnSave.addActionListener(e -> {
 			try {
-				var dao = new UserDAO();
-				var imagePath = selectedImagePath != null ? selectedImagePath : "default.png";
-				var apartmentID = dao.getApartmentIDFromNumber(txtApartmentNumber.getText());
-
-				if (apartmentID == -1) {
-					JOptionPane.showMessageDialog(frame, "Căn hộ không tồn tại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
-					return;
+				// Lấy dữ liệu từ form và kiểm tra null
+				var fullName1 = txtFullName.getText().trim();
+				if (fullName1.isEmpty()) {
+					fullName1 = "";
 				}
 
-				// 🔥 Xử lý lỗi định dạng ngày
-				Date dob, startDate, endDate;
-				try {
-					dob = Date.valueOf(txtDob.getText().trim());
-					startDate = Date.valueOf(txtStartDate.getText().trim());
-					endDate = Date.valueOf(txtEndDate.getText().trim());
-				} catch (IllegalArgumentException ex) {
-					JOptionPane.showMessageDialog(frame, "Vui lòng nhập đúng định dạng ngày!", "Lỗi",
-							JOptionPane.ERROR_MESSAGE);
-					return;
+				var gender1 = cmbGender.getSelectedItem().equals("MALE");
+
+				// Xử lý ngày tháng (cho phép null nếu không chọn)
+				var birthDate1 = (birthChooser.getDate() != null)
+						? birthChooser.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+						: null;
+
+				var phone1 = txtPhone.getText();
+				phone1 = (phone1 != null && !phone1.isBlank()) ? phone1.trim() : "";
+
+				var cccd1 = txtCCCD.getText();
+				cccd1 = (cccd1 != null && !cccd1.isBlank()) ? cccd1.trim() : "";
+
+				var country1 = txtCountry.getText().trim();
+				if (country1.isEmpty()) {
+					country1 = "";
 				}
 
-				// 🔥 Kiểm tra nhập số tránh lỗi `NumberFormatException`
-				int quantity, verifyCode;
-				try {
-					quantity = Integer.parseInt(txtQuantity.getText().trim());
-					verifyCode = Integer.parseInt(txtVerifyCode.getText().trim());
-				} catch (NumberFormatException ex) {
-					JOptionPane.showMessageDialog(frame, "Số lượng và mã xác nhận phải là số!", "Lỗi",
-							JOptionPane.ERROR_MESSAGE);
-					return;
+				var numOfMembers1 = 0;
+				if (!txtNumOfMembers.getText().trim().isEmpty()) {
+					numOfMembers1 = Integer.parseInt(txtNumOfMembers.getText().trim());
+				}
+				// integer cho nhập null
+				Integer apartmentID1 = null;
+				// Kiểm tra nếu ô nhập không rỗng
+				if (!txtApartmentID.getText().trim().isEmpty()) {
+					var value = Integer.parseInt(txtApartmentID.getText().trim()); // Chuyển sang số nguyên
+					if (value != 0) {
+						apartmentID1 = value;
+					}
 				}
 
-				var gender = maleRadio.isSelected();
+				// Xử lý ngày hợp đồng (cho phép null)
+				var startDate1 = startDateChooser.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
-				var newUser = new User(0, txtFullName.getText().trim(), imagePath, txtCountry.getText().trim(), dob,
-						startDate, endDate, quantity, txtPhone.getText().trim(), txtEmail.getText().trim(), verifyCode,
-						gender, apartmentID, true, txtApartmentNumber.getText().trim());
+				var endDate1 = endDateChooser.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
-				if (dao.addUser(newUser)) {
-					JOptionPane.showMessageDialog(frame, "Thêm người dùng thành công!", "Thành công",
-							JOptionPane.INFORMATION_MESSAGE);
-					frame.dispose();
-					loadDataToTable(null);
-					new QuanLyChungCuGUI().loadApartmentsToGUI(); // 🔥 Cập nhật trạng thái căn hộ
-				} else {
-					JOptionPane.showMessageDialog(frame, "Lỗi khi thêm người dùng!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+				if (startDate1.isAfter(endDate1)) {
+					throw new IllegalArgumentException("Date start after date end");
 				}
+
+				// Cập nhật vào CSDL
+				var dao = new MemberDAO();
+				var dao1 = new ApartmentDAO();
+				var success = dao.updateMember(editingMemberID, fullName1, gender1, birthDate1, phone1, cccd1, country1,
+						numOfMembers1, apartmentID1, startDate1, endDate1);
+
+				if (!success) {
+					throw new Exception("Fail");
+				}
+				if (apartmentID1 != null) {
+					dao1.increaseApartmentStatus(apartmentID1);
+				}
+				// Cập nhật thành công
+				JOptionPane.showMessageDialog(editDialog, "Update Success", "Success",
+						JOptionPane.INFORMATION_MESSAGE);
+
+				// Làm mới bảng và đóng dialog
+				loadDataToTable();
+				editDialog.dispose();
+
+			} catch (NumberFormatException ex) {
+				JOptionPane.showMessageDialog(editDialog, "Not format number: " + ex.getMessage(), "Error",
+						JOptionPane.ERROR_MESSAGE);
+			} catch (IllegalArgumentException ex) {
+				JOptionPane.showMessageDialog(editDialog, ex.getMessage(), "data fail",
+						JOptionPane.WARNING_MESSAGE);
 			} catch (Exception ex) {
+				JOptionPane.showMessageDialog(editDialog, "Error: " + ex.getMessage(), "Eroor",
+						JOptionPane.ERROR_MESSAGE);
 				ex.printStackTrace();
 			}
 		});
 
-		panelBottom.add(btnThem);
-		panelBottom.add(btnHuy);
-		frame.add(panelBottom, BorderLayout.SOUTH);
+	    var btnCancel = new JButton("Hủy");
+	    btnCancel.setBackground(new Color(178, 34, 34));
+	    btnCancel.setForeground(Color.WHITE);
+	    btnCancel.setFont(new Font("Arial", Font.BOLD, 13));
+	    btnCancel.setPreferredSize(new Dimension(100, 35));
+	    btnCancel.addActionListener(e -> editDialog.dispose());
 
-		frame.setVisible(true);
+	    buttonPanel.add(btnSave);
+	    buttonPanel.add(btnCancel);
+
+	    editDialog.add(formPanel, BorderLayout.CENTER);
+	    editDialog.add(buttonPanel, BorderLayout.SOUTH);
+	    editDialog.setVisible(true);
 	}
 
-	// 🔹 Chỉnh sửa người dùng
-	private void suaUser() {
 
-	}
-
-	// 🔹 Xóa người dùng
+	// Xóa người dùng
 	private void xoaUser() {
 		var selectedRow = table.getSelectedRow();
-		if (selectedRow != -1) {
-			var userId = (int) tableModel.getValueAt(selectedRow, 0);
-			new UserDAO().deleteUser(userId);
-			loadDataToTable(null);
+		if (selectedRow == -1) {
+			JOptionPane.showMessageDialog(this, "Please choose user to delete!", "WARNING_MESSAGE",
+					JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+		var dao = new MemberDAO();
+		var userID = (int) table.getValueAt(selectedRow, 0); // Lấy ID người dùng từ bảng
+
+		var confirm = JOptionPane.showConfirmDialog(this, "Are you sure to lock this user?",
+				"Accept", JOptionPane.YES_NO_OPTION);
+		if (confirm == JOptionPane.YES_OPTION) {
+			if (dao.updateLoginStatus(userID, false)) { // false = vô hiệu hóa tài khoản
+				JOptionPane.showMessageDialog(this, "Locked succes!", "INFORMATION_MESSAGE",
+						JOptionPane.INFORMATION_MESSAGE);
+				loadDataToTable(); // Cập nhật lại dữ liệu trên bảng
+			} else {
+				JOptionPane.showMessageDialog(this, "Fail!", "ERROR_MESSAGE",
+						JOptionPane.ERROR_MESSAGE);
+			}
 		}
 	}
+
 }

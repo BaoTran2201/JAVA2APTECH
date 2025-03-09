@@ -59,7 +59,7 @@ public class CustomerPage extends JFrame {
         btnContact.setFont(new Font("Arial", Font.BOLD, 17));
         setupButtonHoverEffect(btnContact);
         btnContact.setBounds(10, 170, 270, 42);
-        btnContact.addActionListener(e -> new ContactPage().setVisible(true));
+		btnContact.addActionListener(e -> new ContactPage(userID).setVisible(true));
 
         sidebar.add(btnContact);
 
@@ -78,10 +78,7 @@ public class CustomerPage extends JFrame {
         setupButtonHoverEffect(btnFeedback);
         btnFeedback.setBounds(10, 304, 270, 42);
         sidebar.add(btnFeedback);
-        btnFeedback.addActionListener(e -> {
-            new FeedbackPage().setVisible(true);
-            dispose();
-        });
+		btnFeedback.addActionListener(e -> new FeedbackPage(userID).setVisible(true));
 
         btnRules = new JButton("Rules");
         btnRules.setFont(new Font("Arial", Font.BOLD, 17));
@@ -90,8 +87,7 @@ public class CustomerPage extends JFrame {
         btnRules.setBounds(10, 371, 270, 42);
         sidebar.add(btnRules);
         btnRules.addActionListener(e -> {
-            new RulesPage().setVisible(true);
-            dispose();
+			new RulesPage(userID).setVisible(true);
         });
 
 
@@ -121,6 +117,9 @@ public class CustomerPage extends JFrame {
         btnServices = new JButton("Services");
         btnServices.setForeground(new Color(255, 255, 255));
         btnServices.setFont(new Font("Arial", Font.BOLD, 17));
+		btnServices.addActionListener(e -> {
+			new ServicesUI(userID).setVisible(true);
+		});
         setupButtonHoverEffect(btnServices);
         btnServices.setBounds(10, 597, 270, 42);
         sidebar.add(btnServices);
@@ -130,6 +129,10 @@ public class CustomerPage extends JFrame {
         btnPayment.setForeground(new Color(255, 255, 255));
         setupButtonHoverEffect(btnPayment);
         btnPayment.setBounds(10, 668, 270, 42);
+		btnPayment.addActionListener(e -> {
+			var paymentFrame = new PaymentFrame(userID);
+			paymentFrame.setVisible(true);
+		});
         sidebar.add(btnPayment);
 
         btnRTS = new JButton("Register Temporary Stay");

@@ -270,4 +270,17 @@ public class ApartmentDAO {
 		return deletedApartments;
 	}
 
+	// update màu
+	public boolean increaseApartmentStatus(int apartmentID) {
+		var sql = "UPDATE Apartments SET Apartments_Status = Apartments_Status + 1 WHERE ApartmentID = ?";
+
+		try (var conn = ConnectDB.getCon(); var stmt = conn.prepareStatement(sql)) {
+
+			stmt.setInt(1, apartmentID);
+			return stmt.executeUpdate() > 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
 }

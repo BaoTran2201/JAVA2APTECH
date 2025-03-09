@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import model.Member;
 import model.User;
 import service.ConnectDB;
 
@@ -46,7 +47,7 @@ public class UserDAO {
 	// 🔹 Lấy user theo ID căn hộ
 	public User getUserByApartmentID(int apartmentID) {
 		User user = null;
-		var sql = "SELECT * FROM members WHERE apartmentID = ? AND memberStatus = 1";
+		var sql = "SELECT * FROM members WHERE apartmentID = ?";
 
 		try (var conn = ConnectDB.getCon(); var stmt = conn.prepareStatement(sql)) {
 			stmt.setInt(1, apartmentID);
@@ -76,7 +77,7 @@ public class UserDAO {
 		}
 
 		var sql = """
-				INSERT INTO members (memberName, identityImage, country, Phone, Email, apartmentID, memberStatus)
+				INSERT INTO members (memberName, avarta, country, Phone, Email, apartmentID, memberStatus)
 				VALUES (?, ?, ?, ?, ?, ?, ?)
 				""";
 
@@ -118,14 +119,14 @@ public class UserDAO {
 	}
 
 	// 🔹 Cập nhật thông tin user
-	public boolean updateUser(User user) {
-		var sql = "UPDATE members SET memberName=?, identityImage=?, country=?, Phone=?, Email=?, apartmentID=?, memberStatus=? WHERE memberID=?";
+	public boolean updateUser(Member user) {
+		var sql = "UPDATE members SET memberName=?, avarta=?, country=?, Phone=?, cccd=?, apartmentID=?, memberStatus=? WHERE memberID=?";
 		try (var conn = ConnectDB.getCon(); var stmt = conn.prepareStatement(sql)) {
 			stmt.setString(1, user.getMemberName());
 			stmt.setString(2, user.getIdentityImage());
 			stmt.setString(3, user.getCountry());
 			stmt.setString(4, user.getPhone());
-			stmt.setString(5, user.getEmail());
+			stmt.setString(5, user.getCccd());
 			stmt.setInt(6, user.getApartmentID());
 			stmt.setBoolean(7, user.isMemberStatus());
 			stmt.setInt(8, user.getMemberID());
@@ -153,12 +154,12 @@ public class UserDAO {
 		var apartmentID = rs.getInt("apartmentID");
 		var apartmentNumber = getApartmentNumberFromID(apartmentID); // 📌 Lấy số phòng từ ID
 
-		return new User(rs.getInt("memberID"), rs.getString("memberName"), rs.getString("identityImage"),
+		return new User(rs.getInt("memberID"), rs.getString("memberName"), rs.getString("avatar"),
 				rs.getString("country"), rs.getDate("dob"), // ⚠ Đã sửa: Lấy ngày sinh từ ResultSet
 				rs.getDate("startDate"), // ⚠ Đã sửa: Lấy ngày bắt đầu từ ResultSet
 				rs.getDate("endDate"), // ⚠ Đã sửa: Lấy ngày kết thúc từ ResultSet
 				rs.getInt("quantity"), // ⚠ Đã sửa: Số lượng thành viên
-				rs.getString("Phone"), rs.getString("Email"), rs.getInt("verifyCode"), // ⚠ Đã sửa: Mã xác nhận
+				rs.getString("Phone"), rs.getString("cccd"), rs.getInt("verifyCode"), // ⚠ Đã sửa: Mã xác nhận
 				rs.getBoolean("gender"), // ⚠ Đã sửa: Giới tính
 				apartmentID, rs.getBoolean("memberStatus"), // ⚠ Đã sửa: Trạng thái thành viên
 				apartmentNumber);
@@ -199,4 +200,5 @@ public class UserDAO {
 		}
 		return null; // Nếu không tìm thấy, trả về null
 	}
+
 }

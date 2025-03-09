@@ -1,362 +1,228 @@
 package view;
 
-import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-
-import java.awt.Font;
-import javax.swing.SwingConstants;
+import java.awt.BorderLayout;
 import java.awt.Color;
-import javax.swing.JSeparator;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.SwingConstants;
+
+import Dao.ServiesDAO;
+import Dao.UserServiceDAO;
+import model.Service;
 
 public class ServicesUI extends JFrame {
-
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
-	private JLabel lblTitle;
-	private JPanel ListServices;
-	private JSeparator separator;
-	private JSeparator separator_1;
-	private JSeparator separator_2;
-	private JPanel Service1;
-	private JLabel lblRepair;
-	private JSeparator separator_3;
-	private JLabel lblNameService1;
-	private JButton btnRegister1;
-	private JPanel service1;
-	private JLabel lblCleaningServices;
-	private JSeparator separator_4;
-	private JLabel lblApartmentCleaningServices;
-	private JButton btnRegister1_1;
-	private JPanel service1_1;
-	private JLabel lblParkingServices;
-	private JSeparator separator_5;
-	private JLabel lblRegisterParkingSlot;
-	private JButton btnRegister1_2;
-	private JPanel service1_2;
-	private JLabel lblSecurityServices;
-	private JSeparator separator_6;
-	private JLabel lblContactApartmentSecurity;
-	private JButton btnRegister1_3;
-	private JPanel service1_3;
-	private JLabel lblLaundryServices;
-	private JSeparator separator_7;
-	private JLabel lblProfessionalLaundryAnd;
-	private JButton btnRegister1_4;
-	private JPanel service1_4;
-	private JLabel lblMaintenanceServices;
-	private JSeparator separator_8;
-	private JLabel lblRoutineMaintenanceFor;
-	private JButton btnRegister1_5;
+	private JPanel listServicesPanel;
+	private int userID;
 
-	/**
-	 * Launch the application.
-	 */
 	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					ServicesUI frame = new ServicesUI();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
+		EventQueue.invokeLater(() -> {
+			try {
+				var frame = new ServicesUI(2);
+				frame.setVisible(true);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+	}
+
+	public ServicesUI(int userID) {
+		this.userID = userID;
+		setTitle("Services");
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setBounds(100, 100, 1292, 600);
+		contentPane = new JPanel(new BorderLayout(10, 10));
+		contentPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		setContentPane(contentPane);
+
+		var topPanel = new JPanel(new BorderLayout());
+		topPanel.setBackground(new Color(0, 128, 128));
+
+		var lblTitle = new JLabel("List of Services", SwingConstants.CENTER);
+		lblTitle.setFont(new Font("Arial", Font.BOLD, 28));
+		lblTitle.setForeground(Color.WHITE);
+		lblTitle.setOpaque(true);
+		lblTitle.setBackground(new Color(0, 128, 128));
+		lblTitle.setPreferredSize(new Dimension(100, 50));
+
+		var btnBack = createBackButton();
+		topPanel.add(btnBack, BorderLayout.WEST);
+		topPanel.add(lblTitle, BorderLayout.CENTER);
+
+		listServicesPanel = new JPanel(new GridBagLayout());
+		listServicesPanel.setBackground(new Color(230, 230, 250));
+
+		var scrollPane = new JScrollPane(listServicesPanel);
+		scrollPane.setBorder(null);
+
+		var btnViewRegisteredServices = new JButton("View Registered Services");
+		btnViewRegisteredServices.setFont(new Font("Arial", Font.BOLD, 16));
+		btnViewRegisteredServices.setBackground(new Color(0, 128, 128));
+		btnViewRegisteredServices.setForeground(Color.WHITE);
+		btnViewRegisteredServices.setFocusPainted(false);
+		btnViewRegisteredServices.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+
+		btnViewRegisteredServices.addActionListener(e -> {
+			new ServiceConfirmation(userID).setVisible(true);
+		});
+
+		contentPane.add(topPanel, BorderLayout.NORTH);
+		contentPane.add(scrollPane, BorderLayout.CENTER);
+		contentPane.add(btnViewRegisteredServices, BorderLayout.SOUTH);
+
+		loadServices();
+	}
+
+	private JButton createBackButton() {
+		var btnBack = new JButton("◄ Back");
+		btnBack.setFont(new Font("Arial", Font.BOLD, 16));
+		btnBack.setForeground(Color.WHITE);
+		btnBack.setBackground(new Color(64, 128, 128));
+		btnBack.setBorder(null);
+		btnBack.setFocusPainted(false);
+		btnBack.setContentAreaFilled(false);
+		btnBack.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+		btnBack.addActionListener(e -> {
+			new User(userID).setVisible(true);
+			dispose();
+		});
+
+		return btnBack;
+	}
+
+	private void loadServices() {
+		var dao = new ServiesDAO();
+		var services = dao.getActiveServices();
+
+		listServicesPanel.removeAll();
+		var gbc = new GridBagConstraints();
+		gbc.insets = new Insets(10, 10, 10, 10);
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.weightx = 1.0;
+
+		final int[] col = { 0 }, row = { 0 };
+
+		services.forEach(service -> {
+			gbc.gridx = col[0];
+			gbc.gridy = row[0];
+
+			listServicesPanel.add(createServicePanel(service), gbc);
+
+			if (++col[0] == 3) {
+				col[0] = 0;
+				row[0]++;
+			}
+		});
+
+		listServicesPanel.revalidate();
+		listServicesPanel.repaint();
+	}
+
+	private JPanel createServicePanel(Service service) {
+		var panel = new JPanel(new BorderLayout());
+		panel.setPreferredSize(new Dimension(250, 220));
+		panel.setBorder(BorderFactory.createLineBorder(new Color(0, 128, 128), 2));
+		panel.setBackground(Color.WHITE);
+
+		var lblTitle = new JLabel(service.getServiceName(), SwingConstants.CENTER);
+		lblTitle.setFont(new Font("Arial", Font.BOLD, 16));
+		lblTitle.setForeground(Color.WHITE);
+		lblTitle.setOpaque(true);
+		lblTitle.setBackground(new Color(0, 128, 128));
+		panel.add(lblTitle, BorderLayout.NORTH);
+
+		var lblDescription = new JLabel("<html><center>" + service.getDescription() + "</center></html>");
+		lblDescription.setFont(new Font("Arial", Font.PLAIN, 14));
+		lblDescription.setHorizontalAlignment(SwingConstants.CENTER);
+		lblDescription.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		panel.add(lblDescription, BorderLayout.CENTER);
+
+		var lblPrice = new JLabel("Price: $" + service.getPrice(), SwingConstants.CENTER);
+		lblPrice.setFont(new Font("Arial", Font.BOLD, 14));
+		lblPrice.setForeground(new Color(220, 20, 60));
+		panel.add(lblPrice, BorderLayout.SOUTH);
+
+		var btnRegister = new JButton("Register");
+		btnRegister.setBackground(new Color(0, 128, 128));
+		btnRegister.setForeground(Color.WHITE);
+		btnRegister.setFont(new Font("Arial", Font.BOLD, 14));
+		btnRegister.setPreferredSize(new Dimension(Integer.MAX_VALUE, 30));
+		btnRegister.setFocusPainted(false);
+		btnRegister.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+
+		btnRegister.addActionListener(e -> {
+			var dao = new UserServiceDAO();
+			var success = dao.registerService(userID, service.getServiceID());
+
+			if (success) {
+				JOptionPane.showMessageDialog(null,
+						"You have successfully registered for the service!\n" + "Service: " + service.getServiceName()
+								+ "\n" + "Price: $" + service.getPrice(),
+						"Registration Successful", JOptionPane.INFORMATION_MESSAGE);
+			} else {
+				JOptionPane.showMessageDialog(null, "Service registration failed. Please try again.", "Error",
+						JOptionPane.ERROR_MESSAGE);
+			}
+		});
+
+
+		panel.add(btnRegister, BorderLayout.SOUTH);
+
+		var popupMenu = new JPopupMenu();
+		var menuItemInfo = new JMenuItem("View Information");
+		menuItemInfo.addActionListener(e -> JOptionPane.showMessageDialog(panel,
+				"Service Name: " + service.getServiceName() + "\n" + "Description: " + service.getDescription() + "\n"
+						+ "Price: $" + service.getPrice() + "\n" + "Duration: " + service.getDurationDays() + " days",
+				"Service Information", JOptionPane.INFORMATION_MESSAGE));
+
+		popupMenu.add(menuItemInfo);
+		panel.setComponentPopupMenu(popupMenu);
+
+		panel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				panel.setBackground(new Color(224, 255, 255));
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				panel.setBackground(Color.WHITE);
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				if (e.isPopupTrigger()) {
+					popupMenu.show(e.getComponent(), e.getX(), e.getY());
+				}
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				if (e.isPopupTrigger()) {
+					popupMenu.show(e.getComponent(), e.getX(), e.getY());
 				}
 			}
 		});
-	}
 
-	/**
-	 * Create the frame.
-	 */
-	public ServicesUI() {
-		setTitle("Services");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 1292, 889);
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-
-		setContentPane(contentPane);
-		contentPane.setLayout(null);
-		
-		lblTitle = new JLabel("List of Services");
-		lblTitle.setForeground(new Color(0, 128, 128));
-		lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
-		lblTitle.setFont(new Font("Arial", Font.BOLD, 25));
-		lblTitle.setBounds(10, 11, 1256, 56);
-		contentPane.add(lblTitle);
-		
-		ListServices = new JPanel();
-		ListServices.setBackground(new Color(0, 128, 128));
-		ListServices.setBounds(10, 95, 1256, 683);
-		contentPane.add(ListServices);
-		ListServices.setLayout(null);
-		
-		separator = new JSeparator();
-		separator.setOrientation(SwingConstants.VERTICAL);
-		separator.setBounds(833, 11, 5, 661);
-		ListServices.add(separator);
-		
-		separator_1 = new JSeparator();
-		separator_1.setOrientation(SwingConstants.VERTICAL);
-		separator_1.setBounds(410, 11, 5, 661);
-		ListServices.add(separator_1);
-		
-		separator_2 = new JSeparator();
-		separator_2.setBounds(10, 333, 1236, 2);
-		ListServices.add(separator_2);
-		
-		Service1 = new JPanel();
-		Service1.setBounds(10, 26, 390, 296);
-		ListServices.add(Service1);
-		Service1.setLayout(null);
-		
-		lblRepair = new JLabel("Repair Services");
-		lblRepair.setBackground(new Color(255, 255, 255));
-		lblRepair.setFont(new Font("Arial", Font.BOLD, 18));
-		lblRepair.setForeground(new Color(0, 128, 128));
-		lblRepair.setHorizontalAlignment(SwingConstants.CENTER);
-		lblRepair.setBounds(91, 26, 209, 29);
-		Service1.add(lblRepair);
-		
-		separator_3 = new JSeparator();
-		separator_3.setBackground(new Color(0, 128, 128));
-		separator_3.setBounds(10, 66, 370, 2);
-		Service1.add(separator_3);
-		
-		lblNameService1 = new JLabel("Technical device repair support");
-		lblNameService1.setFont(new Font("Arial", Font.BOLD, 15));
-		lblNameService1.setForeground(new Color(0, 128, 128));
-		lblNameService1.setHorizontalAlignment(SwingConstants.CENTER);
-		lblNameService1.setBounds(68, 163, 258, 29);
-		Service1.add(lblNameService1);
-		
-		btnRegister1 = new JButton("Register");
-		btnRegister1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				btnRegister1ActionPerformed(e);
-			}
-		});
-		btnRegister1.setBackground(new Color(192, 192, 192));
-		btnRegister1.setFont(new Font("Arial", Font.PLAIN, 15));
-		btnRegister1.setForeground(new Color(0, 128, 128));
-		btnRegister1.setBounds(0, 267, 390, 29);
-		Service1.add(btnRegister1);
-		
-		service1 = new JPanel();
-		service1.setLayout(null);
-		service1.setBounds(425, 26, 390, 296);
-		ListServices.add(service1);
-		
-		lblCleaningServices = new JLabel("Cleaning Services");
-		lblCleaningServices.setHorizontalAlignment(SwingConstants.CENTER);
-		lblCleaningServices.setForeground(new Color(0, 128, 128));
-		lblCleaningServices.setFont(new Font("Arial", Font.BOLD, 18));
-		lblCleaningServices.setBackground(Color.WHITE);
-		lblCleaningServices.setBounds(91, 26, 209, 29);
-		service1.add(lblCleaningServices);
-		
-		separator_4 = new JSeparator();
-		separator_4.setBackground(new Color(0, 128, 128));
-		separator_4.setBounds(10, 66, 370, 2);
-		service1.add(separator_4);
-		
-		lblApartmentCleaningServices = new JLabel("Apartment cleaning services");
-		lblApartmentCleaningServices.setHorizontalAlignment(SwingConstants.CENTER);
-		lblApartmentCleaningServices.setForeground(new Color(0, 128, 128));
-		lblApartmentCleaningServices.setFont(new Font("Arial", Font.BOLD, 15));
-		lblApartmentCleaningServices.setBounds(68, 163, 258, 29);
-		service1.add(lblApartmentCleaningServices);
-		
-		btnRegister1_1 = new JButton("Register");
-		btnRegister1_1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				btnRegister1_1ActionPerformed(e);
-			}
-		});
-		btnRegister1_1.setForeground(new Color(0, 128, 128));
-		btnRegister1_1.setFont(new Font("Arial", Font.PLAIN, 15));
-		btnRegister1_1.setBackground(Color.LIGHT_GRAY);
-		btnRegister1_1.setBounds(0, 267, 390, 29);
-		service1.add(btnRegister1_1);
-		
-		service1_1 = new JPanel();
-		service1_1.setLayout(null);
-		service1_1.setBounds(848, 26, 390, 296);
-		ListServices.add(service1_1);
-		
-		lblParkingServices = new JLabel("Parking Services");
-		lblParkingServices.setHorizontalAlignment(SwingConstants.CENTER);
-		lblParkingServices.setForeground(new Color(0, 128, 128));
-		lblParkingServices.setFont(new Font("Arial", Font.BOLD, 18));
-		lblParkingServices.setBackground(Color.WHITE);
-		lblParkingServices.setBounds(91, 26, 209, 29);
-		service1_1.add(lblParkingServices);
-		
-		separator_5 = new JSeparator();
-		separator_5.setBackground(new Color(0, 128, 128));
-		separator_5.setBounds(10, 66, 370, 2);
-		service1_1.add(separator_5);
-		
-		lblRegisterParkingSlot = new JLabel("Register parking slot");
-		lblRegisterParkingSlot.setHorizontalAlignment(SwingConstants.CENTER);
-		lblRegisterParkingSlot.setForeground(new Color(0, 128, 128));
-		lblRegisterParkingSlot.setFont(new Font("Arial", Font.BOLD, 15));
-		lblRegisterParkingSlot.setBounds(68, 163, 258, 29);
-		service1_1.add(lblRegisterParkingSlot);
-		
-		btnRegister1_2 = new JButton("Register");
-		btnRegister1_2.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				btnRegister1_2ActionPerformed(e);
-			}
-		});
-		btnRegister1_2.setForeground(new Color(0, 128, 128));
-		btnRegister1_2.setFont(new Font("Arial", Font.PLAIN, 15));
-		btnRegister1_2.setBackground(Color.LIGHT_GRAY);
-		btnRegister1_2.setBounds(0, 267, 390, 29);
-		service1_1.add(btnRegister1_2);
-		
-		service1_2 = new JPanel();
-		service1_2.setLayout(null);
-		service1_2.setBounds(10, 363, 390, 296);
-		ListServices.add(service1_2);
-		
-		lblSecurityServices = new JLabel("Security Services");
-		lblSecurityServices.setHorizontalAlignment(SwingConstants.CENTER);
-		lblSecurityServices.setForeground(new Color(0, 128, 128));
-		lblSecurityServices.setFont(new Font("Arial", Font.BOLD, 18));
-		lblSecurityServices.setBackground(Color.WHITE);
-		lblSecurityServices.setBounds(91, 26, 209, 29);
-		service1_2.add(lblSecurityServices);
-		
-		separator_6 = new JSeparator();
-		separator_6.setBackground(new Color(0, 128, 128));
-		separator_6.setBounds(10, 66, 370, 2);
-		service1_2.add(separator_6);
-		
-		lblContactApartmentSecurity = new JLabel("Contact apartment security");
-		lblContactApartmentSecurity.setHorizontalAlignment(SwingConstants.CENTER);
-		lblContactApartmentSecurity.setForeground(new Color(0, 128, 128));
-		lblContactApartmentSecurity.setFont(new Font("Arial", Font.BOLD, 15));
-		lblContactApartmentSecurity.setBounds(68, 163, 258, 29);
-		service1_2.add(lblContactApartmentSecurity);
-		
-		btnRegister1_3 = new JButton("Register");
-		btnRegister1_3.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				btnRegister1_3ActionPerformed(e);
-			}
-		});
-		btnRegister1_3.setForeground(new Color(0, 128, 128));
-		btnRegister1_3.setFont(new Font("Arial", Font.PLAIN, 15));
-		btnRegister1_3.setBackground(Color.LIGHT_GRAY);
-		btnRegister1_3.setBounds(0, 267, 390, 29);
-		service1_2.add(btnRegister1_3);
-		
-		service1_3 = new JPanel();
-		service1_3.setLayout(null);
-		service1_3.setBounds(425, 363, 390, 296);
-		ListServices.add(service1_3);
-		
-		lblLaundryServices = new JLabel("Laundry Services");
-		lblLaundryServices.setHorizontalAlignment(SwingConstants.CENTER);
-		lblLaundryServices.setForeground(new Color(0, 128, 128));
-		lblLaundryServices.setFont(new Font("Arial", Font.BOLD, 18));
-		lblLaundryServices.setBackground(Color.WHITE);
-		lblLaundryServices.setBounds(91, 26, 209, 29);
-		service1_3.add(lblLaundryServices);
-		
-		separator_7 = new JSeparator();
-		separator_7.setBackground(new Color(0, 128, 128));
-		separator_7.setBounds(10, 66, 370, 2);
-		service1_3.add(separator_7);
-		
-		lblProfessionalLaundryAnd = new JLabel("Professional laundry and dry cleaning");
-		lblProfessionalLaundryAnd.setHorizontalAlignment(SwingConstants.CENTER);
-		lblProfessionalLaundryAnd.setForeground(new Color(0, 128, 128));
-		lblProfessionalLaundryAnd.setFont(new Font("Arial", Font.BOLD, 15));
-		lblProfessionalLaundryAnd.setBounds(61, 163, 271, 29);
-		service1_3.add(lblProfessionalLaundryAnd);
-		
-		btnRegister1_4 = new JButton("Register");
-		btnRegister1_4.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				btnRegister1_4ActionPerformed(e);
-			}
-		});
-		btnRegister1_4.setForeground(new Color(0, 128, 128));
-		btnRegister1_4.setFont(new Font("Arial", Font.PLAIN, 15));
-		btnRegister1_4.setBackground(Color.LIGHT_GRAY);
-		btnRegister1_4.setBounds(0, 267, 390, 29);
-		service1_3.add(btnRegister1_4);
-		
-		service1_4 = new JPanel();
-		service1_4.setLayout(null);
-		service1_4.setBounds(848, 363, 390, 296);
-		ListServices.add(service1_4);
-		
-		lblMaintenanceServices = new JLabel("Maintenance Services");
-		lblMaintenanceServices.setHorizontalAlignment(SwingConstants.CENTER);
-		lblMaintenanceServices.setForeground(new Color(0, 128, 128));
-		lblMaintenanceServices.setFont(new Font("Arial", Font.BOLD, 18));
-		lblMaintenanceServices.setBackground(Color.WHITE);
-		lblMaintenanceServices.setBounds(91, 26, 209, 29);
-		service1_4.add(lblMaintenanceServices);
-		
-		separator_8 = new JSeparator();
-		separator_8.setBackground(new Color(0, 128, 128));
-		separator_8.setBounds(10, 66, 370, 2);
-		service1_4.add(separator_8);
-		
-		lblRoutineMaintenanceFor = new JLabel("Routine maintenance for apartment facilities");
-		lblRoutineMaintenanceFor.setHorizontalAlignment(SwingConstants.CENTER);
-		lblRoutineMaintenanceFor.setForeground(new Color(0, 128, 128));
-		lblRoutineMaintenanceFor.setFont(new Font("Arial", Font.BOLD, 15));
-		lblRoutineMaintenanceFor.setBounds(37, 163, 318, 29);
-		service1_4.add(lblRoutineMaintenanceFor);
-		
-		btnRegister1_5 = new JButton("Register");
-		btnRegister1_5.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				btnRegister1_5ActionPerformed(e);
-			}
-		});
-		btnRegister1_5.setForeground(new Color(0, 128, 128));
-		btnRegister1_5.setFont(new Font("Arial", Font.PLAIN, 15));
-		btnRegister1_5.setBackground(Color.LIGHT_GRAY);
-		btnRegister1_5.setBounds(0, 267, 390, 29);
-		service1_4.add(btnRegister1_5);
-	}
-	protected void btnRegister1ActionPerformed(ActionEvent e) {
-		JOptionPane.showMessageDialog(null, "You have selected: Repair Services");
-
-	}
-	
-	protected void btnRegister1_1ActionPerformed(ActionEvent e) {
-		JOptionPane.showMessageDialog(null, "You have selected: Cleaning Services");
-	}
-	
-	protected void btnRegister1_2ActionPerformed(ActionEvent e) {
-		JOptionPane.showMessageDialog(null, "You have selected: Parking Services");
-	}
-	
-	protected void btnRegister1_3ActionPerformed(ActionEvent e) {
-		JOptionPane.showMessageDialog(null, "You have selected: Security Services");
-	}
-	
-	protected void btnRegister1_4ActionPerformed(ActionEvent e) {
-		JOptionPane.showMessageDialog(null, "You have selected: Laundry Services");
-	}
-	
-	protected void btnRegister1_5ActionPerformed(ActionEvent e) {
-		JOptionPane.showMessageDialog(null, "You have selected: Maintenance Services");
-
+		return panel;
 	}
 }

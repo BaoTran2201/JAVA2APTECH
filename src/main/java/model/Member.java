@@ -15,16 +15,54 @@ public class Member {
 	private String cccd;
 	private int verifyCode;
 	private boolean gender;
-	private Integer apartmentID;
+	private int apartmentID;
 	private boolean memberStatus;
 	private String identityImage;
-
+	private String apartmentNumber;
 	public Member() {
 	}
 
 	public Member(int memberID, String memberName, String avatar, String country, LocalDate dob, LocalDate startDate,
 			LocalDate endDate, int quantity, String phone, String cccd, int verifyCode, boolean gender,
-			Integer apartmentID, boolean memberStatus, String identityImage) {
+			int apartmentID, boolean memberStatus, String identityImage) {
+		this.memberID = memberID;
+		this.memberName = memberName;
+		this.avatar = avatar;
+		this.country = country;
+		this.dob = dob;
+		this.startDate = startDate;
+		this.endDate = endDate;
+		this.quantity = quantity;
+		this.phone = phone;
+		this.cccd = cccd;
+		this.verifyCode = verifyCode;
+		this.gender = gender;
+		this.apartmentID = apartmentID;
+		this.memberStatus = memberStatus;
+		this.identityImage = identityImage;
+	}
+
+	public Member(int memberID, String memberName, boolean gender, LocalDate dob, String phone, String cccd,
+			String country,
+			int quantity, int apartmentID, LocalDate startDate, LocalDate endDate) {
+		this.memberID = memberID;
+		this.memberName = memberName;
+		this.gender = gender;
+		this.dob = dob;
+		this.phone = phone;
+		this.cccd = cccd;
+		this.country = country;
+		this.quantity = quantity;
+		this.apartmentID = apartmentID;
+		this.startDate = startDate;
+		this.endDate = endDate;
+	}
+	// add
+
+	// Constructor đầy đủ (Dùng khi truy vấn từ DB)
+	public Member(int memberID, String memberName, String avatar, String country, LocalDate dob, LocalDate startDate,
+			LocalDate endDate, int quantity, String phone, String cccd, int verifyCode, boolean gender, int apartmentID,
+			boolean memberStatus, String identityImage, String apartmentNumber) {
 		super();
 		this.memberID = memberID;
 		this.memberName = memberName;
@@ -41,6 +79,14 @@ public class Member {
 		this.apartmentID = apartmentID;
 		this.memberStatus = memberStatus;
 		this.identityImage = identityImage;
+		this.apartmentNumber = apartmentNumber;
+	}
+
+	public String getApartmentNumber() {
+		return apartmentNumber;
+	}
+	public void setApartmentNumber(String apartmentNumber) {
+		this.apartmentNumber = apartmentNumber;
 	}
 
 	public int getMemberID() {
@@ -139,11 +185,11 @@ public class Member {
 		this.gender = gender;
 	}
 
-	public Integer getApartmentID() {
+	public int getApartmentID() {
 		return apartmentID;
 	}
 
-	public void setApartmentID(Integer apartmentID) {
+	public void setApartmentID(int apartmentID) {
 		this.apartmentID = apartmentID;
 	}
 

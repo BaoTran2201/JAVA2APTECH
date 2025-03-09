@@ -1,7 +1,17 @@
 package view;
 
-import java.awt.*;
-import javax.swing.*;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.EventQueue;
+import java.awt.Font;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JEditorPane;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
 public class ApartmentRules extends JFrame {
@@ -14,7 +24,7 @@ public class ApartmentRules extends JFrame {
     public static void main(String[] args) {
         EventQueue.invokeLater(() -> {
             try {
-                ApartmentRules frame = new ApartmentRules();
+                var frame = new ApartmentRules();
                 frame.setVisible(true);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -33,14 +43,14 @@ public class ApartmentRules extends JFrame {
         setContentPane(contentPane);
         contentPane.setLayout(null);
 
-        JPanel panel = new JPanel();
+        var panel = new JPanel();
         panel.setBackground(new Color(64, 128, 128));
         panel.setBounds(0, 0, 1276, 850);
         contentPane.add(panel);
         panel.setLayout(null);
 
         // ====== Nút Back ======
-        JButton btnBack = new JButton("◄ Back");
+        var btnBack = new JButton("◄ Back");
         btnBack.setFont(new Font("Arial", Font.BOLD, 16));
         btnBack.setForeground(Color.WHITE);
         btnBack.setBackground(new Color(64, 128, 128));
@@ -54,10 +64,12 @@ public class ApartmentRules extends JFrame {
             dispose();
         });
         btnBack.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
+            @Override
+			public void mouseEntered(java.awt.event.MouseEvent evt) {
                 btnBack.setForeground(new Color(200, 200, 200));
             }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
+            @Override
+			public void mouseExited(java.awt.event.MouseEvent evt) {
                 btnBack.setForeground(Color.WHITE);
             }
         });
@@ -66,21 +78,22 @@ public class ApartmentRules extends JFrame {
         editorPane = new JEditorPane();
         editorPane.setContentType("text/html");
         editorPane.setText(
-            "<html><body style='font-family:Arial; font-size:14px; text-align:justify;'>"
-            + "<h2 style='text-align:center;'>NỘI QUY CHUNG CƯ</h2>"
-            + "<b>1. QUY ĐỊNH CHUNG</b><br>Tất cả cư dân và khách đến thăm phải tuân thủ nội quy chung cư.<br><br>"
-            + "<b>2. AN TOÀN VÀ AN NINH</b><br>Không gây mất trật tự, ồn ào từ <span style='color:red;'>22:00 - 06:00</span>.<br><br>"
-            + "<b>3. VỆ SINH MÔI TRƯỜNG</b><br>Giữ gìn vệ sinh chung, không xả rác bừa bãi.<br><br>"
-            + "<b>4. SỬ DỤNG TIỆN ÍCH CHUNG</b><br>Không chiếm dụng hành lang, lối đi chung để chứa đồ cá nhân.<br><br>"
-            + "<b>5. QUẢN LÝ THÚ CƯNG</b><br>Chỉ nuôi thú cưng khi có sự đồng ý của ban quản lý chung cư.<br><br>"
-            + "<b>6. PCCC (PHÒNG CHÁY CHỮA CHÁY)</b><br>Không hút thuốc hoặc sử dụng lửa trong khu vực dễ cháy nổ.<br><br>"
-            + "<b>7. QUẢN LÝ KHÁCH RA VÀO</b><br>Khách đến thăm phải đăng ký tại quầy lễ tân hoặc bảo vệ.<br><br>"
-            + "<b>8. XỬ LÝ VI PHẠM</b><br>Cư dân vi phạm nội quy sẽ bị nhắc nhở hoặc xử lý theo quy định.<br><br>"
-            + "</body></html>");
-        
+				"""
+				<html><body style='font-family:Arial; font-size:14px; text-align:justify;'>\r
+				    <h2 style='text-align:center;'>APARTMENT REGULATIONS</h2>\r
+				    <b>1. GENERAL REGULATIONS</b><br>All residents and visitors must comply with the apartment regulations.<br><br>\r
+				    <b>2. SAFETY AND SECURITY</b><br>Do not cause disturbances or loud noises from <span style='color:red;'>22:00 - 06:00</span>.<br><br>\r
+				    <b>3. ENVIRONMENTAL HYGIENE</b><br>Maintain cleanliness, do not litter.<br><br>\r
+				    <b>4. USE OF COMMON FACILITIES</b><br>Do not occupy hallways or common areas for personal storage.<br><br>\r
+				    <b>5. PET MANAGEMENT</b><br>Pets are only allowed with approval from the apartment management board.<br><br>\r
+				    <b>6. FIRE PREVENTION AND CONTROL</b><br>No smoking or use of fire in flammable areas.<br><br>\r
+				    <b>7. VISITOR MANAGEMENT</b><br>Visitors must register at the reception or security desk.<br><br>\r
+				    <b>8. VIOLATION HANDLING</b><br>Residents violating the regulations will be reminded or handled according to the rules.<br><br>\r
+				</body></html>""");
+
         editorPane.setEditable(false);
         editorPane.setOpaque(false);
-        JScrollPane scrollPane = new JScrollPane(editorPane);
+        var scrollPane = new JScrollPane(editorPane);
         scrollPane.setBounds(440, 154, 400, 500);
         scrollPane.getViewport().setOpaque(false);
         scrollPane.setOpaque(false);

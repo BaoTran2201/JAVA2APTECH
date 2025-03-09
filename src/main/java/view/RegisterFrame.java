@@ -135,25 +135,21 @@ public class RegisterFrame extends JFrame {
 		var password = new String(passwordField.getPassword()).trim();
 		var confirmPassword = new String(confirmPasswordField.getPassword()).trim();
 
-		// Kiểm tra rỗng
 		if (email.isEmpty() || username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
 			JOptionPane.showMessageDialog(this, "Please fill all fields!", "Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 
-		// Kiểm tra email hợp lệ
 		if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
 			JOptionPane.showMessageDialog(this, "Invalid email format!", "Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 
-		// Kiểm tra mật khẩu xác nhận
 		if (!password.equals(confirmPassword)) {
 			JOptionPane.showMessageDialog(this, "Passwords do not match!", "Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 
-		// Kiểm tra xem tài khoản đã tồn tại chưa
 		if (dao.selectByUser(username) != null) {
 			JOptionPane.showMessageDialog(this, "Username already exists!", "Error", JOptionPane.ERROR_MESSAGE);
 			return;
@@ -163,10 +159,6 @@ public class RegisterFrame extends JFrame {
 		var newUser = new Login(username, password, email, "user", true);
 		dao.insert(newUser);
 
-		// JOptionPane.showMessageDialog(this, "Registration successful!", "Success",
-		// JOptionPane.INFORMATION_MESSAGE);
-
-		// Reset form sau khi đăng ký thành công
 		resetForm();
 	}
 

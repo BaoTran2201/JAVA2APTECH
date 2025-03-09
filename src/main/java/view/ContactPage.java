@@ -1,29 +1,41 @@
 package view;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+
 public class ContactPage extends JFrame {
-    public ContactPage() {
+	public ContactPage(int userID) {
         setTitle("Contact Information");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setBounds(100, 100, 1292, 889);
         setLocationRelativeTo(null);
 
         // Panel nền
-        JPanel backgroundPanel = new JPanel(new GridBagLayout());
+        var backgroundPanel = new JPanel(new GridBagLayout());
         backgroundPanel.setBackground(new Color(0, 128, 128));
         getContentPane().add(backgroundPanel);
 
-        GridBagConstraints gbc = new GridBagConstraints();
+        var gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.anchor = GridBagConstraints.CENTER;
 
         // Tiêu đề
-        JLabel lblTitle = new JLabel("Contact Information", SwingConstants.CENTER);
+        var lblTitle = new JLabel("Contact Information", SwingConstants.CENTER);
         lblTitle.setFont(new Font("Arial", Font.BOLD, 28));
         lblTitle.setForeground(Color.WHITE);
         gbc.gridx = 0;
@@ -32,7 +44,7 @@ public class ContactPage extends JFrame {
         backgroundPanel.add(lblTitle, gbc);
 
         // Panel chứa thông tin liên hệ
-        JPanel contactPanel = new JPanel();
+        var contactPanel = new JPanel();
         contactPanel.setLayout(new BoxLayout(contactPanel, BoxLayout.Y_AXIS));
         contactPanel.setBackground(Color.WHITE);
         contactPanel.setPreferredSize(new Dimension(600, 200));
@@ -47,13 +59,13 @@ public class ContactPage extends JFrame {
         backgroundPanel.add(contactPanel, gbc);
 
         // Nút quay lại
-        JButton btnBack = new JButton("Back");
+        var btnBack = new JButton("Back");
         btnBack.setFont(new Font("Arial", Font.BOLD, 16));
         btnBack.setForeground(Color.WHITE);
         btnBack.setBackground(new Color(0, 100, 100));
         btnBack.setPreferredSize(new Dimension(150, 40));
         btnBack.setFocusPainted(false);
-        
+
         // Hover effect
         btnBack.addMouseListener(new MouseAdapter() {
             @Override
@@ -66,21 +78,21 @@ public class ContactPage extends JFrame {
                 btnBack.setBackground(new Color(0, 100, 100));
             }
         });
-        
-        btnBack.addActionListener(e -> dispose());
-        
+
+		btnBack.addActionListener(e -> {
+			new User(userID).setVisible(true); // Mở lại trang User
+			dispose(); // Đóng trang hiện tại
+		});
+
         gbc.gridy = 2;
         backgroundPanel.add(btnBack, gbc);
     }
 
     private JLabel createContactLabel(String text) {
-        JLabel label = new JLabel(text);
+        var label = new JLabel(text);
         label.setFont(new Font("Arial", Font.PLAIN, 18));
         label.setForeground(new Color(0, 128, 128));
         return label;
     }
 
-    public static void main(String[]args) {
-        SwingUtilities.invokeLater(() -> new ContactPage().setVisible(true));
-    }
 }

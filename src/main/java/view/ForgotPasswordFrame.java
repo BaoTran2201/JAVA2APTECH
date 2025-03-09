@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.util.Properties;
 import java.util.Random;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -44,6 +45,8 @@ public class ForgotPasswordFrame extends JFrame {
 	private JButton btncheck;
 	private JLabel lblEnterUser;
 	private JTextField textUser;
+	private boolean isPasswordVisible = false;
+	private JButton btnShowPassword;
 
     public static void main(String[] args) {
         EventQueue.invokeLater(() -> {
@@ -105,16 +108,38 @@ public class ForgotPasswordFrame extends JFrame {
 		passwordField.setBounds(500, 296, 250, 25);
 		passwordField.setEnabled(false);
         contentPane.add(passwordField);
+		btnShowPassword = new JButton(
+				new ImageIcon("D:\\java\\code\\Apartment\\src\\main\\resources\\image\\eye_closed.png"));
+		btnShowPassword.setBounds(768, 296, 30, 25);
+        btnShowPassword.setBorder(null);
+        btnShowPassword.setContentAreaFilled(false);
+        btnShowPassword.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        contentPane.add(btnShowPassword);
 
-        var lblConfirmPassword = new JLabel("Confirm Password:");
-        lblConfirmPassword.setForeground(Color.WHITE);
+		var lblConfirmPassword = new JLabel("Confirm Password:");
+		lblConfirmPassword.setForeground(Color.WHITE);
 		lblConfirmPassword.setBounds(300, 346, 200, 25);
-        contentPane.add(lblConfirmPassword);
+		contentPane.add(lblConfirmPassword);
 
-        confirmPasswordField = new JPasswordField();
+		confirmPasswordField = new JPasswordField();
 		confirmPasswordField.setBounds(500, 346, 250, 25);
 		confirmPasswordField.setEnabled(false);
-        contentPane.add(confirmPasswordField);
+		contentPane.add(confirmPasswordField);
+
+        btnShowPassword.addActionListener(e -> {
+		    isPasswordVisible = !isPasswordVisible;
+		    if (isPasswordVisible) {
+				confirmPasswordField.setEchoChar((char) 0);
+		        passwordField.setEchoChar((char) 0);
+				btnShowPassword
+						.setIcon(new ImageIcon("D:\\java\\code\\Apartment\\src\\main\\resources\\image\\eye_open.png"));
+		    } else {
+				confirmPasswordField.setEchoChar('*');
+		        passwordField.setEchoChar('*');
+				btnShowPassword.setIcon(
+						new ImageIcon("D:\\java\\code\\Apartment\\src\\main\\resources\\image\\eye_closed.png"));
+		    }
+		});
 
         btnResetPassword = new JButton("Reset Password");
 		btnResetPassword.addActionListener(this::resetPasswordAction);

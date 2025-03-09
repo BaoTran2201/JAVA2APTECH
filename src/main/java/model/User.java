@@ -18,6 +18,7 @@ public class User {
 	private int apartmentID;
 	private boolean memberStatus;
 	private String apartmentNumber;
+	private String cccd;// add
 
 	// 🔹 Constructor đầy đủ (Dùng khi truy vấn từ DB)
 	public User(int memberID, String memberName, String identityImage, String country, Date dob, Date startDate,
@@ -56,9 +57,47 @@ public class User {
 		this.memberStatus = true; // Mặc định là đang hoạt động
 	}
 
+	public User(int memberID, String memberName, String identityImage, String country, Date dob, Date startDate,
+			Date endDate, int quantity, String phone, int verifyCode, boolean gender, int apartmentID,
+			boolean memberStatus, String apartmentNumber, String cccd) {
+		super();
+		this.memberID = memberID;
+		this.memberName = memberName;
+		this.identityImage = identityImage;
+		this.country = country;
+		this.dob = dob;
+		this.startDate = startDate;
+		this.endDate = endDate;
+		this.quantity = quantity;
+		this.phone = phone;
+		this.verifyCode = verifyCode;
+		this.gender = gender;
+		this.apartmentID = apartmentID;
+		this.memberStatus = memberStatus;
+		this.apartmentNumber = apartmentNumber;
+		this.cccd = cccd;
+	}
+
+	public String getCccd() {
+		return cccd;
+	}
+
+	public void setCccd(String cccd) {
+		this.cccd = cccd;
+	}
+
 	// 🔹 Getters và Setters
 	public int getMemberID() {
 		return memberID;
+	}
+
+	@Override
+	public String toString() {
+		return "User [memberID=" + memberID + ", memberName=" + memberName + ", identityImage=" + identityImage
+				+ ", country=" + country + ", dob=" + dob + ", startDate=" + startDate + ", endDate=" + endDate
+				+ ", quantity=" + quantity + ", phone=" + phone + ", email=" + email + ", verifyCode=" + verifyCode
+				+ ", gender=" + gender + ", apartmentID=" + apartmentID + ", memberStatus=" + memberStatus
+				+ ", apartmentNumber=" + apartmentNumber + ", cccd=" + cccd + "]";
 	}
 
 	public void setMemberID(int memberID) {
