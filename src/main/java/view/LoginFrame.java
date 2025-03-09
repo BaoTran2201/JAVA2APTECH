@@ -141,7 +141,7 @@ public class LoginFrame extends JFrame {
 
 		// Ảnh nền
 		lblImage = new JLabel("");
-		lblImage.setIcon(new ImageIcon("D:\\java\\code\\Apartment\\src\\main\\resources\\image\\apartment1.jpg"));
+		lblImage.setIcon(new ImageIcon("C:\\Users\\PC\\JAVA2APTECH\\src\\main\\resources\\image\\apartment1.jpg"));
 		lblImage.setBounds(0, 0, 1286, 850);
 		contentPane.add(lblImage);
 	}
@@ -163,8 +163,7 @@ public class LoginFrame extends JFrame {
 				JOptionPane.showMessageDialog(this, "Acount is locked!", "WARNING_MESSAGE",
 						JOptionPane.WARNING_MESSAGE);
 			} else if (!userAccount.getPass().equals(password)) {
-				JOptionPane.showMessageDialog(this, "Password fail!", "ERROR_MESSAGE",
-						JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, "Password fail!", "ERROR_MESSAGE", JOptionPane.ERROR_MESSAGE);
 			} else {
 				JOptionPane.showMessageDialog(this, "Login Success!", "INFORMATION_MESSAGE",
 						JOptionPane.INFORMATION_MESSAGE);
@@ -187,8 +186,7 @@ public class LoginFrame extends JFrame {
 				JOptionPane.showMessageDialog(this, "Acount is locked!", "WARNING_MESSAGE",
 						JOptionPane.WARNING_MESSAGE);
 			} else if (!staffAccount.getPassword().equals(password)) {
-				JOptionPane.showMessageDialog(this, "Password fail!", "ERROR_MESSAGE",
-						JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, "Password fail!", "ERROR_MESSAGE", JOptionPane.ERROR_MESSAGE);
 			} else {
 				JOptionPane.showMessageDialog(this, "Login Success!", "INFORMATION_MESSAGE",
 						JOptionPane.INFORMATION_MESSAGE);

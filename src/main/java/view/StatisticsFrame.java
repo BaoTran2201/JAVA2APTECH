@@ -156,19 +156,19 @@ public class StatisticsFrame extends JFrame {
 		panelBelowTop.setBorder(new EmptyBorder(10, 10, 10, 10));
 
 		var lbl1 = new RoundedShadowLabel("TOTAL CUSTOMERS: " + dao.getTotalCustomers(),
-				"D:\\java\\code\\Apartment\\src\\main\\resources\\image\\total customer.png");
+				"C:\\Users\\PC\\JAVA2APTECH\\src\\main\\resources\\image\\total customer.png");
 		lbl1.setFont(new Font("Arial", Font.BOLD, 14));
 		lbl1.setForeground(new Color(64, 128, 128));
 		lbl1.setBorder(new EmptyBorder(5, 10, 5, 10));
 
 		var lbl2 = new RoundedShadowLabel("TOTAL FEEDBACK: " + dao.getTotalFeedback(),
-				"D:\\java\\code\\Apartment\\src\\main\\resources\\image\\total feedback.png");
+				"C:\\Users\\PC\\JAVA2APTECH\\src\\main\\resources\\image\\total feedback.png");
 		lbl2.setFont(new Font("Arial", Font.BOLD, 14));
 		lbl2.setForeground(new Color(64, 128, 128));
 		lbl2.setBorder(new EmptyBorder(5, 10, 5, 10));
 
 		var lbl3 = new RoundedShadowLabel("TOTAL Revenue: " + dao.getRevenue() + " VNĐ",
-				"D:\\java\\code\\Apartment\\src\\main\\resources\\image\\Revenue.png");
+				"C:\\Users\\PC\\JAVA2APTECH\\src\\main\\resources\\image\\Revenue.png");
 		lbl3.setFont(new Font("Arial", Font.BOLD, 14));
 		lbl3.setForeground(new Color(64, 128, 128));
 		lbl3.setBorder(new EmptyBorder(5, 10, 5, 10));
