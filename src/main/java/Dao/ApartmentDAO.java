@@ -270,17 +270,31 @@ public class ApartmentDAO {
 		return deletedApartments;
 	}
 
-	// update màu
-	public boolean increaseApartmentStatus(int apartmentID) {
-		var sql = "UPDATE Apartments SET Apartments_Status = Apartments_Status + 1 WHERE ApartmentID = ?";
-
-		try (var conn = ConnectDB.getCon(); var stmt = conn.prepareStatement(sql)) {
-
-			stmt.setInt(1, apartmentID);
-			return stmt.executeUpdate() > 0;
+	// kiểm tra idphòng có người chưa
+	public boolean isApartmentOccupied(int apartmentID) {
+		var sql = "SELECT COUNT(*) FROM members WHERE apartmentID = ?";
+		try (var conn = ConnectDB.getCon(); var ps = conn.prepareStatement(sql)) {
+			ps.setInt(1, apartmentID);
+			var rs = ps.executeQuery();
+			if (rs.next()) {
+				return rs.getInt(1) > 0; // Nếu COUNT > 0, nghĩa là đã có người ở
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return false;
 	}
+	// update màu
+//	public boolean increaseApartmentStatus(int apartmentID) {
+//		var sql = "UPDATE Apartments SET Apartments_Status = Apartments_Status + 2 WHERE ApartmentID = ?";
+//
+//		try (var conn = ConnectDB.getCon(); var stmt = conn.prepareStatement(sql)) {
+//
+//			stmt.setInt(1, apartmentID);
+//			return stmt.executeUpdate() > 0;
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//		}
+//		return false;
+//	}
 }

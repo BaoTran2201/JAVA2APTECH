@@ -210,6 +210,23 @@ public class StaffDAO {
 		return false;
 	}
 
+//check đã làm chưa
+	public boolean isNotCompleteByStaffServiceID(int staffServiceID) {
+		var isNotComplete = false;
+		var sql = "SELECT StatusDone FROM StaffServices WHERE staffServiceID = ?";
+
+		try (var con = ConnectDB.getCon(); var ps = con.prepareStatement(sql)) {
+			ps.setInt(1, staffServiceID);
+			var rs = ps.executeQuery();
+			if (rs.next()) {
+				isNotComplete = rs.getInt("StatusDone") == 1; // Nếu StatusDone = 1 → chưa hoàn thành
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return isNotComplete;
+	}
+
 	public boolean deleteStaffService(int staffServiceID) {
 		var sql = "DELETE FROM StaffServices WHERE StaffServiceID = ?";
 		try (var con = ConnectDB.getCon(); var ps = con.prepareStatement(sql)) {
@@ -219,6 +236,23 @@ public class StaffDAO {
 			e.printStackTrace();
 		}
 		return false;
+	}
+
+	///// check staff có lamf xong chưa
+	public boolean isStatusComplete(int staffID) {
+		var isComplete = false;
+		var sql = "SELECT StatusDone FROM StaffServices WHERE staffID = ?";
+
+		try (var con = ConnectDB.getCon(); var ps = con.prepareStatement(sql)) {
+			ps.setInt(1, staffID);
+			var rs = ps.executeQuery();
+			if (rs.next()) {
+				isComplete = rs.getInt("StatusDone") == 1; // Lấy giá trị BIT (0 = false, 1 = true)
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return isComplete;
 	}
 
 }

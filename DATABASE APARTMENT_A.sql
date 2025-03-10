@@ -135,6 +135,7 @@ CREATE TABLE Invoices (
 );
 
 -- Bảng chi tiết hóa đơn
+DROP TABLE IF EXISTS InvoiceDetails;
 CREATE TABLE InvoiceDetails (
     InvoiceDetailID INT IDENTITY PRIMARY KEY,
     InvoiceID INT NOT NULL,
@@ -242,7 +243,7 @@ CREATE TABLE Feedback (
     FOREIGN KEY (memberID) REFERENCES members(memberID) ON DELETE SET NULL
 );
 GO
-
+DROP TABLE IF EXISTS FeedbackImages;
 CREATE TABLE FeedbackImages (
     ImageID INT IDENTITY PRIMARY KEY,
     FeedbackID INT NOT NULL,
@@ -260,53 +261,10 @@ VALUES (1, 1, 'Tầng 1'),
        (1, 2, 'Tầng 2'),
        (1, 3, 'Tầng 3');
 go
-INSERT INTO Apartments (BuildingID, FloorID, ApartmentNumber, ApartmentType, Area, Apartments_Status)
-VALUES (1, 1, '101', '2PN', 50, 1),
-       (1, 2, '201', '3PN', 75, 1),
-       (1, 3, '301', '1PN', 40, 2) 
-go
 INSERT INTO Login (username, pass, jobRole, loginStatus)
 VALUES 
     ('admin', '1', 'admin', 1)
 go
-
-INSERT INTO Login (username, pass, email, jobRole, loginStatus)
-VALUES 
-    ('u2', '1', 'lebao545@gmail.com', 'user', 1),
-    ('u1', '1', 'lebao545@gmail.com', 'user', 0);
-go
-
-INSERT INTO members (memberID, memberName, avatar, country, dob, StartDate, EndDate, quantity, Phone, cccd, verifyCode, gender, apartmentID, memberStatus)
-VALUES 
-(2, 'Nguyen Van A', 'images/user.png', 'Vietnam', '1990-05-12', '2024-01-01', '2025-01-01', 3, '0987654321', '123456789', 9876, 1, 1, 1),
-(3, 'Tran Thi B', 'images/user.png', 'Vietnam', '1995-09-23', '2024-02-15', '2025-02-15', 2, '0976543210', '987654321', 5432, 0, 2, 1);
-
-INSERT INTO Feedback (memberID, namefb, feedbackTittle, note)
-VALUES 
-    (2, 'Nguyen Van A', 'System Error', 'I encountered an error while logging into the system.'),
-    (3, 'Tran Thi B', 'Poor Service', 'The support staff responds very slowly.')
-GO
-INSERT INTO FeedbackImages (FeedbackID, ImagePath)
-VALUES 
-    (1, 'images/user.png'),
-    (1, 'images/user.png'),
-    (2, 'images/user.png')
-go
-INSERT INTO Services (ServiceName, Description, Price, DurationDays, ServiceStatus) 
-VALUES 
-('House Cleaning', 'General house cleaning service.', 150000, 1, 1),
-('Plumbing Repair', 'Fixing leaks and plumbing issues.', 200000, 1, 1),
-('Electrical Maintenance', 'Fixing electrical issues.', 250000, 1, 1),
-('Gym Training', 'Access to gym facilities with trainer support.', 300000, 30, 1),
-('Swimming Pool Access', 'Unlimited access to the swimming pool.', 400000, 30, 1),
-('Laundry Service', 'Washing and ironing clothes.', 120000, 1, 1),
-('Parcel Delivery', 'Delivering parcels within the residence.', 50000, 1, 1);
-go
-INSERT INTO Feedback (memberID, namefb, feedbackTittle, note, FeedbackDate, Statusfb)
-VALUES 
-(2, 'John Doe', 'Service Issue', 'The service was not as expected.', '2025-03-02 10:15:00', 0)
-go
----------------------------------------trigger
 go
 CREATE TRIGGER trg_AfterInsertLogin
 ON Login
@@ -329,6 +287,24 @@ BEGIN
     WHERE memberID IN (SELECT memberID FROM inserted);
 END;
 go
+INSERT INTO Login (username, pass, email, jobRole, loginStatus)
+VALUES 
+    ('u2', '1234', 'lebao545@gmail.com', 'user', 1),
+    ('u1', '1234', 'lebao545@gmail.com', 'user', 0);
+go
+
+INSERT INTO Services (ServiceName, Description, Price, DurationDays, ServiceStatus) 
+VALUES 
+('House Cleaning', 'General house cleaning service.', 150000, 1, 1),
+('Plumbing Repair', 'Fixing leaks and plumbing issues.', 200000, 1, 1),
+('Electrical Maintenance', 'Fixing electrical issues.', 250000, 1, 1),
+('Gym Training', 'Access to gym facilities with trainer support.', 300000, 30, 1),
+('Swimming Pool Access', 'Unlimited access to the swimming pool.', 400000, 30, 1),
+('Laundry Service', 'Washing and ironing clothes.', 120000, 1, 1),
+('Parcel Delivery', 'Delivering parcels within the residence.', 50000, 1, 1);
+go
+
+---------------------------------------trigger
 CREATE TRIGGER trg_SetStartAndEndDate
 ON UserServices
 AFTER INSERT, UPDATE
@@ -387,262 +363,78 @@ BEGIN
     FROM inserted i;
 END;
 GO
+CREATE TRIGGER tr_UpdateApartmentStatus
+ON members
+AFTER UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Cập nhật phòng cũ về trạng thái trống (Status = 0)
+    UPDATE Apartments
+    SET Apartments_Status = 1
+    WHERE ApartmentID IN (
+        SELECT deleted.apartmentID 
+        FROM deleted
+        WHERE deleted.apartmentID IS NOT NULL
+    );
+
+    -- Cập nhật phòng mới thành đã có người ở (Status = 1)
+    UPDATE Apartments
+    SET Apartments_Status = 2
+    WHERE ApartmentID IN (
+        SELECT inserted.apartmentID 
+        FROM inserted
+        WHERE inserted.apartmentID IS NOT NULL
+    );
+END;
+
+------------------------------------
+GO
 INSERT INTO staff (StaffName, Phone) 
 VALUES 
     ('Nguyễn Văn C', '0901234567'), 
     ('Lê Thị D', '0912345678'),
     ('Phạm Văn E', '0923456789');
 go
-------------------------------------------------------------------------
-----
-----
-----
-----------------select
-select*from staff_login
-select*from UserServices
-SELECT COUNT(*) AS Total FROM members
-UPDATE UserServices
-SET StatusSer = 1
-WHERE UserServiceID = 2;
-SELECT us.UserServiceID, us.memberID, us.ServiceID, s.ServiceName, 
-			us.Daystart, us.Dayend, us.StatusSer 
-			FROM UserServices us 
-			JOIN Services s ON us.ServiceID = s.ServiceID 
-UPDATE UserServices
-SET StatusSer = 1 
-WHERE UserServiceID = 6;
-select * from UserServices
-SELECT COALESCE(SUM(s.Price), 0) AS Total FROM UserServices us 
-				JOIN Services s ON us.ServiceID = s.ServiceID 
-				WHERE us.memberID = 1 AND us.StatusSer = 0
 
 
-SELECT COALESCE(SUM(s.Price), 0) AS Total FROM UserServices us 
-				JOIN Services s ON us.ServiceID = s.ServiceID 
-				WHERE us.memberID = 2 AND us.StatusSer = 0
-
-
-SELECT us.UserServiceID, us.memberID, us.ServiceID, s.ServiceName, 
-			us.Daystart, us.Dayend, us.StatusSer 
-			FROM UserServices us 
-			JOIN Services s ON us.ServiceID = s.ServiceID 
+INSERT INTO Feedback (memberID, namefb, feedbackTittle, note)
+VALUES 
+    (2, 'Nguyen Van A', 'System Error', 'I encountered an error while logging into the system.'),
+    (3, 'Tran Thi B', 'Poor Service', 'The support staff responds very slowly.')
+GO
+INSERT INTO FeedbackImages (FeedbackID, ImagePath)
+VALUES 
+    (1, 'images/user.png'),
+    (1, 'images/user.png'),
+    (2, 'images/user.png')
 go
-SELECT 
-    f.FeedbackID,
-    f.memberID,
-    f.namefb,
-    f.feedbackTittle,
-    f.note,
-    f.FeedbackDate,
-    f.Statusfb,
-    fi.ImageID,
-    fi.ImagePath
-FROM Feedback f
-LEFT JOIN FeedbackImages fi ON f.FeedbackID = fi.FeedbackID; 
-SELECT * FROM members WHERE memberID = 2
-select *from Login
-select*from services
-SELECT*FROM members
-SELECT *FROM Login l
-JOIN members m ON l.memberID = m.memberID;
-go
-       SELECT 
-    a.ApartmentID, 
-    b.BuildingName, 
-    f.FloorNumber, 
-    a.ApartmentNumber, 
-    a.ApartmentType, 
-    a.Area, 
-    CASE 
-        WHEN a.Apartments_Status = 1 THEN N'Đang ở' 
-        WHEN a.Apartments_Status = 2 THEN N'Trống'
-        WHEN a.Apartments_Status = 3 THEN N'Đang sửa chữa'
-        ELSE N'Không xác định' 
-    END AS ApartmentStatus
-FROM Apartments a
-LEFT JOIN floor f ON a.FloorID = f.FloorID
-LEFT JOIN Building b ON a.BuildingID = b.BuildingID;
-SELECT * FROM Feedback WHERE 1=1
-SELECT COUNT(*) AS Total FROM Login where jobRole='user'and loginStatus =1
-SELECT 
-    m.memberID, 
-    m.memberName, 
-    a.ApartmentID,  -- Thêm Mã phòng
-    a.ApartmentNumber, 
-    f.FloorNumber, 
-    b.BuildingName
-FROM members m
-LEFT JOIN Apartments a ON m.apartmentID = a.ApartmentID
-LEFT JOIN floor f ON a.FloorID = f.FloorID
-LEFT JOIN Building b ON a.BuildingID = b.BuildingID;
-
-SELECT 
-    m.memberID, 
-    m.memberName, 
-    a.ApartmentID,   -- Mã phòng
-    a.ApartmentNumber,  -- Số phòng
-    f.FloorNumber,   -- Số lầu
-    b.BuildingName   -- Tên tòa nhà
-FROM members m
-JOIN Apartments a ON m.apartmentID = a.ApartmentID
-JOIN floor f ON a.FloorID = f.FloorID
-JOIN Building b ON a.BuildingID = b.BuildingID
-WHERE a.ApartmentID = 1;  -- Điều kiện lọc theo Mã phòng
-
-SELECT * 
-FROM members m
-JOIN Login l ON m.memberID = l.memberID
-WHERE l.loginStatus = 1;
-select *from Apartments
-SELECT *FROM members m JOIN Login l ON m.memberID = l.memberID WHERE l.loginStatus = 1
-
-DELETE FROM members WHERE memberID = 4;
-SELECT * FROM members WHERE apartmentID = 1 AND memberStatus = 1
-SELECT 
-    a.ApartmentID, 
-    a.ApartmentNumber, 
-    a.ApartmentType, 
-    a.Area, 
-    a.Apartments_Status, 
-    f.FloorID, 
-    f.FloorNumber, 
-    f.FloorName, 
-    f.TotalApartments, 
-    f.FloorStatus, 
-    b.BuildingID, 
-    b.BuildingName, 
-    b.TotalFloors, 
-    b.BuildingStatus, 
-    m.memberID, 
-    m.memberName, 
-    m.avatar, 
-    m.country, 
-    m.dob,  
-    m.StartDate,  
-    m.EndDate,  
-    m.quantity, 
-    m.Phone, 
-    m.cccd, 
-    m.verifyCode,  
-    m.gender, 
-    m.memberStatus, 
-    m.identityImage
-FROM Apartments a
-LEFT JOIN floor f ON a.FloorID = f.FloorID
-LEFT JOIN Building b ON a.BuildingID = b.BuildingID
-LEFT JOIN members m ON a.ApartmentID = m.apartmentID
-WHERE a.ApartmentID = 1;
-SELECT memberID, memberName, avatar, country, dob, StartDate, EndDate, 
-				quantity, Phone, cccd, verifyCode, gender, apartmentID, memberStatus, identityImage 
-				FROM members WHERE apartmentID = 1
-SELECT s.ServiceName, s.Price FROM UserServices us 
-				JOIN Services s ON us.ServiceID = s.ServiceID 
-				WHERE us.memberID = 2 AND us.StatusSer = 0
-				go
-
-select *from Invoices
-select*from InvoiceDetails
-select *from UserServices
-select *from Services
-select *from members
-SELECT * 
-FROM Invoices 
-WHERE PaymentStatus = 1 AND memberID = 2;
-SELECT 
-    i.InvoiceID,
-    i.MemberID,
-    i.InvoiceDate,
-    i.TotalAmount,
-    i.PaymentStatus,
-    d.ServiceName,
-    d.Price,
-    d.Quantity,
-    (d.Price * d.Quantity) AS SubTotal
-FROM Invoices i
-JOIN InvoiceDetails d ON i.InvoiceID = d.InvoiceID
-WHERE i.InvoiceID = 3;
-select*from UserServices
-INSERT INTO StaffServices (StaffID, UserServiceID) VALUES (2, 1);
-INSERT INTO StaffServices (StaffID, UserServiceID) VALUES (2, 1);
-INSERT INTO StaffServices (StaffID, UserServiceID) VALUES (2, 2);
-INSERT INTO StaffServices (StaffID, UserServiceID) VALUES (2, 3);
--- Nhân viên 3 (Phạm Văn E) phụ trách dịch vụ 3
-INSERT INTO StaffServices (StaffID, UserServiceID) VALUES (3, 1);
-SELECT s.StaffID, s.StaffName, us.UserServiceID, sv.ServiceName,ss.AssignmentDate
-FROM StaffServices ss
-JOIN staff s ON ss.StaffID = s.StaffID
-JOIN UserServices us ON ss.UserServiceID = us.UserServiceID
-JOIN Services sv ON us.ServiceID = sv.ServiceID;
-
-SELECT * FROM StaffServices
-
-SELECT us.UserServiceID, us.memberID, us.ServiceID, s.ServiceName,
-       us.Daystart, us.Dayend, us.StatusSer
-FROM UserServices us
-JOIN Services s ON us.ServiceID = s.ServiceID
-WHERE us.StatusSer = 1 AND s.DurationDays = 1;
-
-SELECT us.UserServiceID, us.memberID, us.ServiceID, s.ServiceName,
-       us.Daystart, us.Dayend, us.StatusSer
-FROM UserServices us
-JOIN Services s ON us.ServiceID = s.ServiceID
-WHERE us.StatusSer = 1 ;
-SELECT
-	ss.StaffServiceID,
-    a.ApartmentNumber,   
-    m.memberName,        
-    m.Phone,
-    s.ServiceName,       
-    b.BuildingName,
-    ss.StatusDone  -- Thêm cột StatusDone
-FROM 
-    StaffServices ss
-JOIN 
-    UserServices us ON ss.UserServiceID = us.UserServiceID
-JOIN 
-    Services s ON us.ServiceID = s.ServiceID
-JOIN 
-    members m ON us.memberID = m.memberID
-JOIN 
-    Apartments a ON m.apartmentID = a.ApartmentID  
-JOIN 
-    Building b ON a.BuildingID = b.BuildingID
-WHERE 
-    ss.StaffID = 1
-
-
 INSERT INTO Apartments (BuildingID, FloorID, ApartmentNumber, ApartmentType, Area, Apartments_Status)
 VALUES 
     (1, 1, '101', '2PN', 50, 1),
-    (1, 2, '201', '3PN', 75, 1),
-    (1, 3, '301', '1PN', 40, 2),
     (1, 1, '102', '2PN', 52, 1),
+    (1, 1, '103', '2PN', 53, 1),
+    (1, 1, '104', '2PN', 51, 1),
+    (1, 1, '105', '2PN', 54, 1),
+
+    
+    (1, 2, '201', '3PN', 75, 1),
     (1, 2, '202', '3PN', 78, 1),
-    (1, 3, '302', '1PN', 42, 2),
-    (2, 1, '103', '2PN', 53, 1),
-    (2, 2, '203', '3PN', 76, 1),
-    (2, 3, '303', '1PN', 41, 2),
-    (2, 1, '104', '2PN', 51, 1),
-    (2, 2, '204', '3PN', 77, 1),
-    (2, 3, '304', '1PN', 43, 2),
-    (3, 1, '105', '2PN', 54, 1),
-    (3, 2, '205', '3PN', 74, 1),
-    (3, 3, '305', '1PN', 39, 2),
-    (3, 1, '106', '2PN', 55, 1),
-    (3, 2, '206', '3PN', 79, 1),
-    (3, 3, '306', '1PN', 44, 2),
-    (4, 1, '107', '2PN', 56, 1),
-    (4, 2, '207', '3PN', 80, 1);
-GO
+    (1, 2, '203', '3PN', 76, 1),
+    (1, 2, '204', '3PN', 77, 1),
+    (1, 2, '205', '3PN', 74, 1),
+
+    (1, 3, '301', '1PN', 40, 1),
+    (1, 3, '302', '1PN', 42, 1),
+    (1, 3, '303', '1PN', 41, 1),
+    (1, 3, '304', '1PN', 43, 1),
+    (1, 3, '305', '1PN', 39, 1)
+Go
 
 
-
-
-SELECT BuildingID 
-FROM Building 
-WHERE BuildingName = N'Toà';
-select *from InvoiceDetails
-select *from Invoices
-SELECT *
-FROM Staff;
-
+select *from Login
+select*from members
+select * from Apartments
+SELECT StatusDone FROM StaffServices WHERE staffID=2
+select *from Login

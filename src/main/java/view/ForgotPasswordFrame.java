@@ -109,7 +109,7 @@ public class ForgotPasswordFrame extends JFrame {
 		passwordField.setEnabled(false);
         contentPane.add(passwordField);
 		btnShowPassword = new JButton(
-				new ImageIcon("C:\\Users\\PC\\JAVA2APTECH\\src\\main\\resources\\image\\eye_closed.png"));
+				new ImageIcon("D:\\java\\code\\Apartment\\src\\main\\resources\\image\\eye_closed.png"));
 		btnShowPassword.setBounds(768, 296, 30, 25);
         btnShowPassword.setBorder(null);
         btnShowPassword.setContentAreaFilled(false);
@@ -132,12 +132,12 @@ public class ForgotPasswordFrame extends JFrame {
 				confirmPasswordField.setEchoChar((char) 0);
 		        passwordField.setEchoChar((char) 0);
 				btnShowPassword
-						.setIcon(new ImageIcon("C:\\Users\\PC\\JAVA2APTECH\\src\\main\\resources\\image\\eye_open.png"));
+						.setIcon(new ImageIcon("D:\\java\\code\\Apartment\\src\\main\\resources\\image\\eye_open.png"));
 		    } else {
 				confirmPasswordField.setEchoChar('*');
 		        passwordField.setEchoChar('*');
 				btnShowPassword.setIcon(
-						new ImageIcon("C:\\Users\\PC\\JAVA2APTECH\\src\\main\\resources\\image\\eye_closed.png"));
+						new ImageIcon("D:\\java\\code\\Apartment\\src\\main\\resources\\image\\eye_closed.png"));
 		    }
 		});
 
@@ -233,19 +233,33 @@ public class ForgotPasswordFrame extends JFrame {
 	}
 
 	protected void resetPasswordAction(ActionEvent event) {
-		if (!textOTP.getText().trim().equals(generatedOTP)) {
+		var dao = new LoginDAO();
+
+		var otp = textOTP.getText().trim();
+		var newPassword = new String(passwordField.getPassword()).trim();
+		var confirmPassword = new String(confirmPasswordField.getPassword()).trim();
+		var username = textUser.getText().trim();
+
+		if (!otp.equals(generatedOTP)) {
 			JOptionPane.showMessageDialog(this, "Invalid OTP!", "Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		if (!new String(passwordField.getPassword()).equals(new String(confirmPasswordField.getPassword()))) {
+		if (newPassword.length() < 4) {
+			JOptionPane.showMessageDialog(this, "Password must be at least 4 characters long!", "Error",
+					JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		if (!newPassword.equals(confirmPassword)) {
 			JOptionPane.showMessageDialog(this, "Passwords do not match!", "Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		new LoginDAO().updatePassword(textUser.getText().trim(), new String(passwordField.getPassword()));
+		dao.updatePassword(username, newPassword);
+
 		JOptionPane.showMessageDialog(this, "Password successfully reset!", "Success", JOptionPane.INFORMATION_MESSAGE);
 		new LoginFrame().setVisible(true);
 		dispose();
 	}
+
 
 
 	protected void btncheckActionPerformed(ActionEvent e) {

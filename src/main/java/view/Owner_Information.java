@@ -361,27 +361,35 @@ public class Owner_Information extends JFrame {
 
 	protected void btnSaveActionPerformed(ActionEvent e) {
 		try {
-			if (textName.getText().trim().isEmpty()) {
-				JOptionPane.showMessageDialog(this, "Please input name!", "ERROR_MESSAGE", JOptionPane.ERROR_MESSAGE);
+			var name = textName.getText().trim();
+			var phone = textPhoneNumber.getText().trim();
+			var cccd = textcccd.getText().trim();
+			var country = textCountry.getText().trim();
+
+			if (!name.matches("^[A-Za-z ]+$")) {
+				JOptionPane.showMessageDialog(this, "Name cannot contain numbers or special characters!",
+						"ERROR_MESSAGE", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
-			if (textPhoneNumber.getText().trim().isEmpty()) {
-				JOptionPane.showMessageDialog(this, "Please input your phone number!", "ERROR_MESSAGE",
+			if (!phone.matches("^\\d{10}$")) {
+				JOptionPane.showMessageDialog(this, "Phone number must be exactly 10 digits!", "ERROR_MESSAGE",
 						JOptionPane.ERROR_MESSAGE);
 				return;
 			}
-			if (textcccd.getText().trim().isEmpty()) {
-				JOptionPane.showMessageDialog(this, "Please input your citizen identification!", "ERROR_MESSAGE",
+			if (!cccd.matches("^\\d{12}$")) {
+				JOptionPane.showMessageDialog(this, "Citizen Identification (CCCD) must be exactly 12 digits!",
+						"ERROR_MESSAGE", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+
+			if (country.isEmpty()) {
+				JOptionPane.showMessageDialog(this, "Please input your nation!", "ERROR_MESSAGE",
 						JOptionPane.ERROR_MESSAGE);
 				return;
 			}
-			if (textCountry.getText().trim().isEmpty()) {
-				JOptionPane.showMessageDialog(this, "Please input yor nation!", "ERROR_MESSAGE",
-						JOptionPane.ERROR_MESSAGE);
-				return;
-			}
+
 			if (dateChooser.getDate() == null) {
-				JOptionPane.showMessageDialog(this, "Please input your birth!", "ERROR_MESSAGE",
+				JOptionPane.showMessageDialog(this, "Please input your birth date!", "ERROR_MESSAGE",
 						JOptionPane.ERROR_MESSAGE);
 				return;
 			}
@@ -389,13 +397,16 @@ public class Owner_Information extends JFrame {
 			var memberDAO = new MemberDAO();
 			var member = new Member();
 			member.setMemberID(userID);
-			member.setMemberName(textName.getText().trim());
-			member.setPhone(textPhoneNumber.getText().trim());
-			member.setCccd(textcccd.getText().trim());
-			member.setCountry(textCountry.getText().trim());
+			member.setMemberName(name);
+			member.setPhone(phone);
+			member.setCccd(cccd);
+			member.setCountry(country);
 			member.setGender(radioMale.isSelected());
-			// Lấy ngày sinh từ dateChooser và chuyển về LocalDate (yyyy-MM-dd)
+
+			// Chuyển đổi ngày sinh từ dateChooser thành LocalDate
 			member.setDob(dateChooser.getDate().toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate());
+
+			// Xử lý ảnh đại diện
 			if (filename != null) {
 				var dirserver = System.getProperty("user.dir") + "\\images";
 				var pathlocal = Paths.get(dirlocal);
@@ -407,28 +418,22 @@ public class Owner_Information extends JFrame {
 					e2.printStackTrace();
 				}
 			} else {
-				// Nếu người dùng không đổi ảnh, giữ nguyên URL ảnh cũ
+				// Nếu không thay đổi ảnh, giữ nguyên ảnh cũ
 				member.setAvatar(fileold);
 			}
-			// Gọi DAO để cập nhật theo ID
+
+			// Cập nhật thông tin thành viên
 			var success = memberDAO.updateMemberByID(member);
-			System.out.println("ID: " + member.getMemberID());
-			System.out.println("Name: " + member.getMemberName());
-			System.out.println("Phone: " + member.getPhone());
-			System.out.println("CCCD: " + member.getCccd());
-			System.out.println("Country: " + member.getCountry());
-			System.out.println("Gender: " + member.isGender());
-			System.out.println("DOB: " + member.getDob());
-			System.out.println("Avatar Path: " + member.getAvatar());
+
 			if (success) {
-				JOptionPane.showMessageDialog(this, "Udate Succes!", "INFORMATION_MESSAGE",
+				JOptionPane.showMessageDialog(this, "Update Success!", "INFORMATION_MESSAGE",
 						JOptionPane.INFORMATION_MESSAGE);
 			} else {
-				JOptionPane.showMessageDialog(this, "Udate Fail!", "ERROR_MESSAGE", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, "Update Fail!", "ERROR_MESSAGE", JOptionPane.ERROR_MESSAGE);
 			}
 		} catch (Exception e1) {
 			e1.printStackTrace();
-			JOptionPane.showMessageDialog(this, "Fail!", "ERROR_MESSAGE", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(this, "An error occurred!", "ERROR_MESSAGE", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 

@@ -270,7 +270,8 @@ public class User extends JFrame {
         Rules.setLayout(null);
         contentPane.add(Rules);
 
-        var lblAttendance_Img = new JLabel(new ImageIcon("C:\\java\\ApartmentManagement\\src\\main\\resources\\image\\Rules.png"));
+		var lblAttendance_Img = new JLabel(
+				new ImageIcon("C:\\java\\ApartmentManagement\\src\\main\\resources\\image\\Rules.png"));
         lblAttendance_Img.setBounds(49, 32, 128, 130);
         Rules.add(lblAttendance_Img);
 

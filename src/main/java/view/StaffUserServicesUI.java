@@ -266,14 +266,21 @@ public class StaffUserServicesUI extends JFrame {
 			var userServiceID = Integer.parseInt(txtUserServiceID.getText());
 
 			var dao = new StaffDAO();
+			var isComplete = dao.isStatusComplete(staffID); // Kiểm tra trạng thái
+			System.out.println(isComplete);
+			if (!isComplete) { // Nếu StatusDone = 0
+				JOptionPane.showMessageDialog(null, "This service is already completed and cannot be updated!",
+						"Warning", JOptionPane.WARNING_MESSAGE);
+				return;
+			}
 			if (dao.updateStaffService(staffServiceID, staffID, userServiceID)) {
-				JOptionPane.showMessageDialog(null, "Cập nhật thành công!");
+				JOptionPane.showMessageDialog(null, "Update Success!");
 				loadStaffServiceData(); // Reload lại bảng dữ liệu
 			} else {
-				JOptionPane.showMessageDialog(null, "Cập nhật thất bại!");
+				JOptionPane.showMessageDialog(null, "Update Fail!");
 			}
 		} else {
-			JOptionPane.showMessageDialog(null, "Vui lòng chọn một hàng để cập nhật!");
+			JOptionPane.showMessageDialog(null, "Please choose 1 row to update!");
 		}
 	}
 
@@ -289,11 +296,21 @@ public class StaffUserServicesUI extends JFrame {
 
 	protected void btnDeleteActionPerformed(ActionEvent e) {
 		if (selectedStaffServiceID != -1) {
+			var staffServiceDao = new StaffDAO();
+
+			// Kiểm tra trạng thái StatusDone của staffServiceID
+			var isNotComplete = staffServiceDao.isNotCompleteByStaffServiceID(selectedStaffServiceID);
+
+			if (!isNotComplete) { // Nếu StatusDone = 0 (đã hoàn thành) thì không cho xóa
+				JOptionPane.showMessageDialog(null, "This service is already completed and cannot be deleted!",
+						"Warning", JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+
 			var confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete this record?",
 					"Confirmation", JOptionPane.YES_NO_OPTION);
 			if (confirm == JOptionPane.YES_OPTION) {
-				var dao = new StaffDAO();
-				if (dao.deleteStaffService(selectedStaffServiceID)) {
+				if (staffServiceDao.deleteStaffService(selectedStaffServiceID)) {
 					JOptionPane.showMessageDialog(null, "Successfully deleted!", "Success",
 							JOptionPane.INFORMATION_MESSAGE);
 					loadStaffServiceData();
@@ -308,6 +325,7 @@ public class StaffUserServicesUI extends JFrame {
 					JOptionPane.WARNING_MESSAGE);
 		}
 	}
+
 
 	public static void main(String[] args) {
 		new StaffUserServicesUI();

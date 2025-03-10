@@ -103,7 +103,7 @@ public class Staff_Tasks extends JFrame {
 		var lblStatus = new JLabel("Status: ");
 		lblStatus.setForeground(Color.black);
 		panelInput.add(lblStatus);
-		cbStatus = new JComboBox<>(new String[] { "Completed", "Pending" });
+		cbStatus = new JComboBox<>(new String[] { "Wait", "Complete" });
 		panelInput.add(cbStatus);
 
 		// Create "Update" button
@@ -121,7 +121,7 @@ public class Staff_Tasks extends JFrame {
 			var staffServiceID = txtStaffServiceID.getText();
 			var status = (String) cbStatus.getSelectedItem(); // Get selected status from JComboBox
 
-			var statusInt = status.equals("Completed") ? 1 : 0;
+			var statusInt = status.equals("Wait") ? 1 : 0;
 
 			// Validate inputs
 			if (staffServiceID.isEmpty() || status == null || status.isEmpty()) {
@@ -165,7 +165,7 @@ public class Staff_Tasks extends JFrame {
 		staffServices.forEach(staffService -> {
 			Object[] row = { staffService.getStaffServiceID(), staffService.getApartmentNumber(),
 					staffService.getMemberName(), staffService.getPhone(), staffService.getServiceName(),
-					staffService.getBuildingName(), staffService.isStatus() ? "Completed" : "Pending" };
+					staffService.getBuildingName(), staffService.isStatus() ? "Wait" : "Complete" };
 			staffServiceTableModel.addRow(row);
 		});
 	}

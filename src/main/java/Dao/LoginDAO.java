@@ -49,12 +49,15 @@ public class LoginDAO {
 
 		public void insert(Login t) {
 			var sql = "INSERT INTO Login (username, pass, email) VALUES (?, ?, ?)";
-			try (var con = ConnectDB.getCon(); var ps = con.prepareStatement(sql)) {
-				ps.setString(1, t.getUsername()); // Chỉ lấy username
-				ps.setString(2, t.getPass()); // Mật khẩu
-				ps.setString(3, t.getEmail()); // Email
+			try (var con = ConnectDB.getCon();
+					var ps = con.prepareStatement(sql)) {
 
-				var rowsAffected = ps.executeUpdate(); // Kiểm tra xem có dòng nào được chèn không
+				ps.setString(1, t.getUsername());
+				ps.setString(2, t.getPass());
+				ps.setString(3, t.getEmail());
+
+				var rowsAffected = ps.executeUpdate(); // Thực hiện chèn dữ liệu
+
 				if (rowsAffected > 0) {
 					JOptionPane.showMessageDialog(null, "Registration successful!", "Success",
 							JOptionPane.INFORMATION_MESSAGE);

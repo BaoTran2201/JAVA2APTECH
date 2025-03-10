@@ -34,6 +34,7 @@ public class LoginFrame extends JFrame {
 	private JButton btnBack;
 	private JLabel lblImage;
 	private JLabel lblRegister;
+	private JPanel panel;
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(() -> {
@@ -77,38 +78,57 @@ public class LoginFrame extends JFrame {
 //        });
 //        contentPane.add(btnBack);
 
+		// Panel nền trong suốt
+		panel = new JPanel();
+		panel.setBackground(new Color(255, 255, 255, 150)); // Tăng alpha lên 150 (hoặc 180 nếu muốn đục hơn)
+		panel.setBounds(206, 135, 861, 514);
+		panel.setLayout(null);
+		contentPane.add(panel);
+
+		// Panel chứa nội dung login
+		var panelForm = new JPanel();
+		panelForm.setBounds(58, 103, 641, 400); // Đặt vị trí và kích thước bên trong panel chính
+		panelForm.setLayout(null);
+		panelForm.setBackground(new Color(255, 255, 255, 0)); // Hoàn toàn trong suốt
+		panel.add(panelForm);
+
+		// LOGIN Label
 		lblLogin = new JLabel("LOGIN");
 		lblLogin.setForeground(new Color(64, 128, 128));
 		lblLogin.setFont(new Font("Arial", Font.BOLD, 30));
 		lblLogin.setHorizontalAlignment(SwingConstants.CENTER);
-		lblLogin.setBounds(518, 232, 209, 58);
-		contentPane.add(lblLogin);
+		lblLogin.setBounds(250, 20, 200, 50);
+		panelForm.add(lblLogin);
 
+		// Username Label
 		lblUsername = new JLabel("Username:");
 		lblUsername.setForeground(new Color(64, 128, 128));
 		lblUsername.setFont(new Font("Arial", Font.BOLD, 20));
-		lblUsername.setBounds(443, 301, 115, 26);
-		contentPane.add(lblUsername);
+		lblUsername.setBounds(150, 100, 120, 26);
+		panelForm.add(lblUsername);
 
+		// Username TextField
 		textUser = new JTextField();
-		textUser.setBounds(613, 301, 209, 26);
-		contentPane.add(textUser);
-		textUser.setColumns(10);
+		textUser.setBounds(300, 100, 250, 26);
+		panelForm.add(textUser);
 
+		// Password Label
 		lblPassword = new JLabel("Password:");
 		lblPassword.setForeground(new Color(64, 128, 128));
 		lblPassword.setFont(new Font("Arial", Font.BOLD, 20));
-		lblPassword.setBounds(443, 370, 115, 26);
-		contentPane.add(lblPassword);
+		lblPassword.setBounds(150, 160, 120, 26);
+		panelForm.add(lblPassword);
 
+		// Password Field
 		passwordField = new JPasswordField();
-		passwordField.setBounds(613, 370, 209, 26);
-		contentPane.add(passwordField);
+		passwordField.setBounds(300, 160, 250, 26);
+		panelForm.add(passwordField);
 
+		// Forgot Password Label
 		lblForgot = new JLabel("Forgot Password?");
 		lblForgot.setForeground(new Color(0, 0, 255));
 		lblForgot.setFont(new Font("Arial", Font.BOLD | Font.ITALIC, 12));
-		lblForgot.setBounds(622, 407, 105, 14);
+		lblForgot.setBounds(310, 200, 120, 20);
 		lblForgot.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		lblForgot.addMouseListener(new java.awt.event.MouseAdapter() {
 			@Override
@@ -117,11 +137,13 @@ public class LoginFrame extends JFrame {
 				dispose();
 			}
 		});
-		contentPane.add(lblForgot);
+		panelForm.add(lblForgot);
+
+		// Register Label
 		lblRegister = new JLabel("Register?");
 		lblRegister.setForeground(new Color(0, 0, 255));
 		lblRegister.setFont(new Font("Arial", Font.BOLD | Font.ITALIC, 12));
-		lblRegister.setBounds(766, 407, 56, 14);
+		lblRegister.setBounds(440, 200, 70, 20);
 		lblRegister.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		lblRegister.addMouseListener(new java.awt.event.MouseAdapter() {
 			@Override
@@ -130,20 +152,26 @@ public class LoginFrame extends JFrame {
 				dispose();
 			}
 		});
-		contentPane.add(lblRegister);
+		panelForm.add(lblRegister);
+
+		// Login Button
 		btnLoginButton = new JButton("LOGIN");
+		btnLoginButton.setBounds(300, 250, 200, 36);
 		btnLoginButton.addActionListener(this::btnLoginButtonActionPerformed);
-		btnLoginButton.setForeground(new Color(0, 0, 0));
-		btnLoginButton.setFont(new Font("Arial", Font.BOLD | Font.ITALIC, 12));
 		btnLoginButton.setBackground(new Color(64, 128, 128));
-		btnLoginButton.setBounds(546, 496, 179, 36);
-		contentPane.add(btnLoginButton);
+		btnLoginButton.setForeground(Color.WHITE);
+		btnLoginButton.setFont(new Font("Arial", Font.BOLD, 16));
+		panelForm.add(btnLoginButton);
 
 		// Ảnh nền
 		lblImage = new JLabel("");
-		lblImage.setIcon(new ImageIcon("C:\\Users\\PC\\JAVA2APTECH\\src\\main\\resources\\image\\apartment1.jpg"));
+		lblImage.setIcon(new ImageIcon("D:\\java\\code\\Apartment\\src\\main\\resources\\image\\apartment1.jpg"));
 		lblImage.setBounds(0, 0, 1286, 850);
 		contentPane.add(lblImage);
+
+		// Đảm bảo ảnh nền nằm dưới cùng
+		contentPane.setComponentZOrder(lblImage, contentPane.getComponentCount() - 1);
+
 	}
 
 	protected void btnLoginButtonActionPerformed(ActionEvent e) {
@@ -163,7 +191,8 @@ public class LoginFrame extends JFrame {
 				JOptionPane.showMessageDialog(this, "Acount is locked!", "WARNING_MESSAGE",
 						JOptionPane.WARNING_MESSAGE);
 			} else if (!userAccount.getPass().equals(password)) {
-				JOptionPane.showMessageDialog(this, "Password fail!", "ERROR_MESSAGE", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, "Password fail!", "ERROR_MESSAGE",
+						JOptionPane.ERROR_MESSAGE);
 			} else {
 				JOptionPane.showMessageDialog(this, "Login Success!", "INFORMATION_MESSAGE",
 						JOptionPane.INFORMATION_MESSAGE);
@@ -186,7 +215,8 @@ public class LoginFrame extends JFrame {
 				JOptionPane.showMessageDialog(this, "Acount is locked!", "WARNING_MESSAGE",
 						JOptionPane.WARNING_MESSAGE);
 			} else if (!staffAccount.getPassword().equals(password)) {
-				JOptionPane.showMessageDialog(this, "Password fail!", "ERROR_MESSAGE", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, "Password fail!", "ERROR_MESSAGE",
+						JOptionPane.ERROR_MESSAGE);
 			} else {
 				JOptionPane.showMessageDialog(this, "Login Success!", "INFORMATION_MESSAGE",
 						JOptionPane.INFORMATION_MESSAGE);
@@ -199,5 +229,4 @@ public class LoginFrame extends JFrame {
 		JOptionPane.showMessageDialog(this, "Account does not have in the system!", "ERROR_MESSAGE",
 				JOptionPane.ERROR_MESSAGE);
 	}
-
 }

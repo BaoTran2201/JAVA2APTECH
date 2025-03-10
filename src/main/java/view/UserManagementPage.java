@@ -44,6 +44,7 @@ public class UserManagementPage extends JFrame {
 	private DefaultTableModel tableModel;
 	private int editingMemberID = -1; // Lưu ID của user đang chỉnh sửa
 	private AbstractButton txtMemberID;
+	private JDialog apartmentDialog;
 	public UserManagementPage() {
 		initUI();
 		loadDataToTable();
@@ -245,9 +246,11 @@ public class UserManagementPage extends JFrame {
 	    endDateChooser.setDateFormatString("yyyy-MM-dd");
 		startDateChooser.getDateEditor().getUiComponent().setEnabled(false);
 		startDateChooser.getDateEditor().getUiComponent().setFocusable(false);
-
 		endDateChooser.getDateEditor().getUiComponent().setEnabled(false);
 		endDateChooser.getDateEditor().getUiComponent().setFocusable(false);
+		// Thêm nút "View Apartments"
+		var btnViewApartments = new JButton("View Apartments");
+		btnViewApartments.addActionListener(e -> showApartmentList());
 
 	    // Thêm vào Panel
 	    formPanel.add(lblFullName);
@@ -273,7 +276,8 @@ public class UserManagementPage extends JFrame {
 
 	    // Button Panel
 	    var buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-	    var btnSave = new JButton("Lưu");
+		buttonPanel.add(btnViewApartments);
+		var btnSave = new JButton("Save");
 	    btnSave.setBackground(new Color(34, 139, 34));
 	    btnSave.setForeground(Color.WHITE);
 	    btnSave.setFont(new Font("Arial", Font.BOLD, 13));
@@ -310,11 +314,29 @@ public class UserManagementPage extends JFrame {
 				}
 				// integer cho nhập null
 				Integer apartmentID1 = null;
+				var IDcheck = new ApartmentDAO();
 				// Kiểm tra nếu ô nhập không rỗng
 				if (!txtApartmentID.getText().trim().isEmpty()) {
-					var value = Integer.parseInt(txtApartmentID.getText().trim()); // Chuyển sang số nguyên
-					if (value != 0) {
-						apartmentID1 = value;
+					var isValid = false;
+					while (!isValid) {
+						try {
+							var value = Integer.parseInt(txtApartmentID.getText().trim());
+							if (value != 0) {
+								if (IDcheck.isApartmentOccupied(value)) {
+									txtApartmentID.setText("");
+									txtApartmentID.requestFocus(); // Đưa con trỏ về ô nhập
+									JOptionPane.showMessageDialog(null, "Apartment have Owner !");
+									return;
+								}
+								apartmentID1 = value;
+								isValid = true;
+							}
+						} catch (NumberFormatException ex) {
+							txtApartmentID.setText(""); // Xóa nội dung ô nhập
+							txtApartmentID.requestFocus(); // Đưa con trỏ về ô nhập
+							JOptionPane.showMessageDialog(null, "Input correct number!");
+							return; // Dừng xử lý để yêu cầu nhập lại
+						}
 					}
 				}
 
@@ -336,9 +358,9 @@ public class UserManagementPage extends JFrame {
 				if (!success) {
 					throw new Exception("Fail");
 				}
-				if (apartmentID1 != null) {
-					dao1.increaseApartmentStatus(apartmentID1);
-				}
+//				if (apartmentID1 != null) {
+//					dao1.increaseApartmentStatus(apartmentID1);
+//				}
 				// Cập nhật thành công
 				JOptionPane.showMessageDialog(editDialog, "Update Success", "Success",
 						JOptionPane.INFORMATION_MESSAGE);
@@ -360,7 +382,7 @@ public class UserManagementPage extends JFrame {
 			}
 		});
 
-	    var btnCancel = new JButton("Hủy");
+		var btnCancel = new JButton("Exit");
 	    btnCancel.setBackground(new Color(178, 34, 34));
 	    btnCancel.setForeground(Color.WHITE);
 	    btnCancel.setFont(new Font("Arial", Font.BOLD, 13));
@@ -374,6 +396,42 @@ public class UserManagementPage extends JFrame {
 	    editDialog.add(buttonPanel, BorderLayout.SOUTH);
 	    editDialog.setVisible(true);
 	}
+
+
+
+	private void showApartmentList() {
+		var apartmentDialog = new JDialog(this, "Apartment List", true);
+		apartmentDialog.setSize(400, 400);
+		apartmentDialog.setLocationRelativeTo(this);
+
+		String[] columnNames = { "Apartment ID", "Apartment Number", "Status" };
+		var tableModel = new DefaultTableModel(columnNames, 0) {
+			@Override
+			public boolean isCellEditable(int row, int column) {
+				return false; // Ngăn không cho chỉnh sửa dữ liệu
+	        }
+		};
+		var table = new JTable(tableModel);
+		var dao = new ApartmentDAO();
+		var apartments = dao.getAllApartments();
+
+		for (var ap : apartments) {
+			tableModel.addRow(new Object[] { ap.getApartmentID(), ap.getApartmentNumber(), ap.getApartmentsStatus() });
+		}
+
+		var btnClose = new JButton("Close");
+		btnClose.addActionListener(e -> apartmentDialog.dispose());
+
+		var panel = new JPanel(new BorderLayout());
+		panel.add(new JScrollPane(table), BorderLayout.CENTER);
+		panel.add(btnClose, BorderLayout.SOUTH);
+
+		apartmentDialog.add(panel);
+		apartmentDialog.setVisible(true);
+	}
+
+
+
 
 
 	// Xóa người dùng

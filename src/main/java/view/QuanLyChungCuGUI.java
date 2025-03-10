@@ -199,7 +199,7 @@ public class QuanLyChungCuGUI extends JFrame {
 			dispose(); // Đóng cửa sổ hiện tại (quản lý chung cư)
 		});
 
-		btnThanhToan = new JButton("Payment");
+		btnThanhToan = new JButton("Staff Service");
 		btnThanhToan.setForeground(Color.WHITE);
 		btnThanhToan.setFont(new Font("Arial", Font.BOLD, 17));
 		btnThanhToan.setFocusPainted(false);
@@ -215,7 +215,7 @@ public class QuanLyChungCuGUI extends JFrame {
 			dispose(); // Đóng cửa sổ hiện tại (quản lý chung cư)
 		});
 
-		btnCaidat = new JButton("Setting");
+		btnCaidat = new JButton("Authentication");
 		btnCaidat.setForeground(Color.WHITE);
 		btnCaidat.setFont(new Font("Arial", Font.BOLD, 17));
 		btnCaidat.setFocusPainted(false);
@@ -277,7 +277,7 @@ public class QuanLyChungCuGUI extends JFrame {
 			dispose(); // Đóng cửa sổ hiện tại (quản lý chung cư)
 		});
 
-		btnRules = new JButton("Staff");
+		btnRules = new JButton("Staff Management");
 		btnRules.setForeground(Color.WHITE);
 		btnRules.setFont(new Font("Arial", Font.BOLD, 17));
 		btnRules.setFocusPainted(false);
@@ -289,8 +289,7 @@ public class QuanLyChungCuGUI extends JFrame {
 		// Xử lý sự kiện click nút Rules
 		btnRules.addActionListener(e -> {
 			// Tạo và hiển thị trang ApartmentRules
-			new ApartmentRules().setVisible(true); // Trang chủ HomeScreen sẽ được mở
-			dispose(); // Đóng cửa sổ hiện tại (quản lý chung cư)
+			new StaffManagement().setVisible(true); // Trang chủ HomeScreen sẽ được mở
 		});
 
 		btnThngRac_2 = new JButton("Trash");
