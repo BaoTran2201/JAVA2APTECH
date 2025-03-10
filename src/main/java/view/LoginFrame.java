@@ -165,7 +165,7 @@ public class LoginFrame extends JFrame {
 
 		// Ảnh nền
 		lblImage = new JLabel("");
-		lblImage.setIcon(new ImageIcon("D:\\java\\code\\Apartment\\src\\main\\resources\\image\\apartment1.jpg"));
+		lblImage.setIcon(new ImageIcon("C:\\Users\\PC\\JAVA2APTECH\\src\\main\\resources\\image\\apartment1.jpg"));
 		lblImage.setBounds(0, 0, 1286, 850);
 		contentPane.add(lblImage);
 

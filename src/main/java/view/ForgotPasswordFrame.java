@@ -109,7 +109,7 @@ public class ForgotPasswordFrame extends JFrame {
 		passwordField.setEnabled(false);
         contentPane.add(passwordField);
 		btnShowPassword = new JButton(
-				new ImageIcon("D:\\java\\code\\Apartment\\src\\main\\resources\\image\\eye_closed.png"));
+				new ImageIcon("C:\\Users\\PC\\JAVA2APTECH\\src\\main\\resources\\image\\eye_closed.png"));
 		btnShowPassword.setBounds(768, 296, 30, 25);
         btnShowPassword.setBorder(null);
         btnShowPassword.setContentAreaFilled(false);
@@ -132,12 +132,12 @@ public class ForgotPasswordFrame extends JFrame {
 				confirmPasswordField.setEchoChar((char) 0);
 		        passwordField.setEchoChar((char) 0);
 				btnShowPassword
-						.setIcon(new ImageIcon("D:\\java\\code\\Apartment\\src\\main\\resources\\image\\eye_open.png"));
+						.setIcon(new ImageIcon("C:\\Users\\PC\\JAVA2APTECH\\src\\main\\resources\\image\\eye_open.png"));
 		    } else {
 				confirmPasswordField.setEchoChar('*');
 		        passwordField.setEchoChar('*');
 				btnShowPassword.setIcon(
-						new ImageIcon("D:\\java\\code\\Apartment\\src\\main\\resources\\image\\eye_closed.png"));
+						new ImageIcon("C:\\Users\\PC\\JAVA2APTECH\\src\\main\\resources\\image\\eye_closed.png"));
 		    }
 		});
 
