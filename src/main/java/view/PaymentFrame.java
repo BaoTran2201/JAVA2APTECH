@@ -228,15 +228,13 @@ public class PaymentFrame extends JFrame {
 
 	}
 
-
 	private String generatePaymentData(int userID) {
 		var dao = new PaymentDAO();
 		var services = dao.getUserServices(userID);
 		var totalAmount = dao.getTotalAmount(userID);
 
 		if (services == null || services.isEmpty()) {
-			return String.format("Pay for UserID %d: %.2f VND, Service: None", userID,
-					totalAmount);
+			return String.format("Pay for UserID %d: %.2f VND, Service: None", userID, totalAmount);
 		}
 
 		var serviceList = services.stream().map(arr -> String.join(", ", arr)).collect(Collectors.joining("; "));
@@ -255,6 +253,7 @@ public class PaymentFrame extends JFrame {
 		qrFrame.setLocationRelativeTo(this);
 		qrFrame.setVisible(true);
 	}
+
 	private JPanel createOtherPanel() {
 		var panel = new JPanel(new BorderLayout());
 		panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -280,7 +279,7 @@ public class PaymentFrame extends JFrame {
 		columnModel.getColumn(1).setResizable(false); // Không cho phép thay đổi kích thước
 		loadInvoices(userID);
 		var popupMenu = new JPopupMenu();
-		var viewDetailItem = new JMenuItem("Xem chi tiết hóa đơn");
+		var viewDetailItem = new JMenuItem("Bill Detail");
 
 		viewDetailItem.addActionListener(e -> {
 			var selectedRow = otherTable.getSelectedRow();
@@ -304,21 +303,19 @@ public class PaymentFrame extends JFrame {
 		});
 		return panel;
 	}
+
 	private void loadInvoices(int userID) {
-	    var dao = new PaymentDAO();
-	    otherTableModel.setRowCount(0); // Xóa dữ liệu cũ trong bảng
+		var dao = new PaymentDAO();
+		otherTableModel.setRowCount(0); // Xóa dữ liệu cũ trong bảng
 
 		dao.getPaidInvoicesByUserId(userID)
 				.forEach(t -> otherTableModel.addRow(new Object[] { t.getInvoiceID(), t.getMemberID(), // Ẩn cột này
 						t.getInvoiceDate(), t.getTotalAmount(), t.isPaymentStatus() ? "Paid" : " " }));
 
-	    var totalAmount = dao.getTotalAmount(userID);
-	    var nf = NumberFormat.getInstance(Locale.US);
-	    totalLabel.setText("Total Amount: " + nf.format(totalAmount) + " VND");
+		var totalAmount = dao.getTotalAmount(userID);
+		var nf = NumberFormat.getInstance(Locale.US);
+		totalLabel.setText("Total Amount: " + nf.format(totalAmount) + " VND");
 	}
-
-
-
 
 	private void loadData(int userID) {
 		var dao = new PaymentDAO();
@@ -383,10 +380,4 @@ public class PaymentFrame extends JFrame {
 		detailDialog.setVisible(true);
 	}
 
-
-	public static void main(String[] args) {
-		SwingUtilities.invokeLater(() -> {
-			new PaymentFrame(2).setVisible(true);
-		});
-	}
 }

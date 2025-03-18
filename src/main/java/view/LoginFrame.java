@@ -48,6 +48,7 @@ public class LoginFrame extends JFrame {
 	}
 
 	public LoginFrame() {
+		setResizable(false);
 		setTitle("Login Form");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1292, 889);
@@ -191,8 +192,7 @@ public class LoginFrame extends JFrame {
 				JOptionPane.showMessageDialog(this, "Acount is locked!", "WARNING_MESSAGE",
 						JOptionPane.WARNING_MESSAGE);
 			} else if (!userAccount.getPass().equals(password)) {
-				JOptionPane.showMessageDialog(this, "Password fail!", "ERROR_MESSAGE",
-						JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, "Password fail!", "ERROR_MESSAGE", JOptionPane.ERROR_MESSAGE);
 			} else {
 				JOptionPane.showMessageDialog(this, "Login Success!", "INFORMATION_MESSAGE",
 						JOptionPane.INFORMATION_MESSAGE);
@@ -215,8 +215,7 @@ public class LoginFrame extends JFrame {
 				JOptionPane.showMessageDialog(this, "Acount is locked!", "WARNING_MESSAGE",
 						JOptionPane.WARNING_MESSAGE);
 			} else if (!staffAccount.getPassword().equals(password)) {
-				JOptionPane.showMessageDialog(this, "Password fail!", "ERROR_MESSAGE",
-						JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, "Password fail!", "ERROR_MESSAGE", JOptionPane.ERROR_MESSAGE);
 			} else {
 				JOptionPane.showMessageDialog(this, "Login Success!", "INFORMATION_MESSAGE",
 						JOptionPane.INFORMATION_MESSAGE);

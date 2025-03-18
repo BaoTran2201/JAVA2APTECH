@@ -106,7 +106,7 @@ public class AdminNotificationForm extends JFrame {
 
 		cbYear = new JComboBox<>();
 		cbYear.setBackground(Color.WHITE);
-		for (var i = 2020; i <= 2030; i++) {
+		for (var i = 2025; i <= 2030 && i > 2024; i++) {
 			cbYear.addItem(String.valueOf(i));
 		}
 		cbYear.setBounds(789, 137, 80, 25);
@@ -140,9 +140,8 @@ public class AdminNotificationForm extends JFrame {
 				JOptionPane.showMessageDialog(this, "Please input full your information!", "Error",
 						JOptionPane.ERROR_MESSAGE);
 			} else {
-				JOptionPane.showMessageDialog(this,
-						"Information to:\n" + title + "\nDateo: " + date + "\n" + content, "Succees",
-						JOptionPane.INFORMATION_MESSAGE);
+				JOptionPane.showMessageDialog(this, "Information to:\n" + title + "\nDateo: " + date + "\n" + content,
+						"Succees", JOptionPane.INFORMATION_MESSAGE);
 			}
 		});
 		btnSubmit.setBounds(714, 445, 100, 30);
@@ -157,8 +156,7 @@ public class AdminNotificationForm extends JFrame {
 			} else {
 				var dao = new AdminNoticeDAO();
 				dao.addNotification(title, content);
-				JOptionPane.showMessageDialog(this, "Save Success!", "Save Success",
-						JOptionPane.INFORMATION_MESSAGE);
+				JOptionPane.showMessageDialog(this, "Save Success!", "Save Success", JOptionPane.INFORMATION_MESSAGE);
 			}
 		});
 

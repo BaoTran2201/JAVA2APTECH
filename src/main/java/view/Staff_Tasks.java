@@ -34,8 +34,8 @@ public class Staff_Tasks extends JFrame {
 		this.staffID = staffID;
 		setTitle("Staff Services Assignment");
 		setBounds(100, 100, 1000, 600);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setLocationRelativeTo(null);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
 		var panelMain = new JPanel(new BorderLayout());
 

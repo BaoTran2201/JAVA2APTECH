@@ -128,8 +128,8 @@ public class StatisticsFrame extends JFrame {
 
 	public StatisticsFrame() {
 		setTitle("Statics");
-        setBounds(100, 100, 1292, 889);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setBounds(100, 100, 1292, 889);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		getContentPane().setLayout(new BorderLayout());
 		getContentPane().setBackground(new Color(64, 128, 128));
 		var panelTop = new JPanel(new BorderLayout());
@@ -201,6 +201,6 @@ public class StatisticsFrame extends JFrame {
 		getContentPane().add(mainPanel, BorderLayout.SOUTH);
 
 		setVisible(true);
-    }
+	}
 
 }

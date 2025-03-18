@@ -105,7 +105,7 @@ public class ApartmentRules extends JFrame {
         panel.add(scrollPane);
 
         lblImgRules = new JLabel("");
-        lblImgRules.setIcon(new ImageIcon("C:\\java\\ApartmentManagement\\src\\main\\resources\\image\\rules1.jpg"));
+        lblImgRules.setIcon(new ImageIcon("C:\\Users\\PC\\JAVA2APTECH\\src\\main\\resources\\image\\rules1.jpg"));
         lblImgRules.setBounds(339, 59, 558, 708);
         panel.add(lblImgRules);
     }

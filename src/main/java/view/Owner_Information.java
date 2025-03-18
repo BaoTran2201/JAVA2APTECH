@@ -28,10 +28,11 @@ import com.toedter.calendar.JDateChooser;
 
 import Dao.MemberDAO;
 import model.Member;
+
 public class Owner_Information extends JFrame {
 
-    private static final long serialVersionUID = 1L;
-    private JPanel contentPane;
+	private static final long serialVersionUID = 1L;
+	private JPanel contentPane;
 	private JLabel lblInfor;
 	private JPanel Owner;
 	private JLabel lblOwnerInformation;
@@ -83,34 +84,35 @@ public class Owner_Information extends JFrame {
 	}
 
 	public Owner_Information(int userID) {
+		setResizable(false);
 		this.userID = userID;
 		setTitle("Owner_Infor");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setBounds(100, 100, 1292, 889);
-        contentPane = new JPanel();
+		setBounds(100, 100, 1292, 889);
+		contentPane = new JPanel();
 		contentPane.setBackground(new Color(255, 255, 255));
-        setContentPane(contentPane);
-        contentPane.setLayout(null);
+		setContentPane(contentPane);
+		contentPane.setLayout(null);
 
 		lblInfor = new JLabel("INFORMATION");
-        lblInfor.setForeground(new Color(0, 128, 128));
-        lblInfor.setFont(new Font("Arial", Font.BOLD, 25));
-        lblInfor.setHorizontalAlignment(SwingConstants.CENTER);
-        lblInfor.setBounds(0, 11, 1276, 70);
-        contentPane.add(lblInfor);
+		lblInfor.setForeground(new Color(0, 128, 128));
+		lblInfor.setFont(new Font("Arial", Font.BOLD, 25));
+		lblInfor.setHorizontalAlignment(SwingConstants.CENTER);
+		lblInfor.setBounds(0, 11, 1276, 70);
+		contentPane.add(lblInfor);
 
 		Owner = new JPanel();
-        Owner.setBackground(new Color(0, 128, 128));
+		Owner.setBackground(new Color(0, 128, 128));
 		Owner.setBounds(140, 108, 966, 361);
-        contentPane.add(Owner);
-        Owner.setLayout(null);
+		contentPane.add(Owner);
+		Owner.setLayout(null);
 
 		lblOwnerInformation = new JLabel("Owner Information");
-        lblOwnerInformation.setForeground(Color.WHITE);
-        lblOwnerInformation.setFont(new Font("Arial", Font.BOLD, 20));
-        lblOwnerInformation.setHorizontalAlignment(SwingConstants.CENTER);
-        lblOwnerInformation.setBounds(10, 11, 946, 38);
-        Owner.add(lblOwnerInformation);
+		lblOwnerInformation.setForeground(Color.WHITE);
+		lblOwnerInformation.setFont(new Font("Arial", Font.BOLD, 20));
+		lblOwnerInformation.setHorizontalAlignment(SwingConstants.CENTER);
+		lblOwnerInformation.setBounds(10, 11, 946, 38);
+		Owner.add(lblOwnerInformation);
 
 		separator = new JSeparator();
 		separator.setOrientation(SwingConstants.VERTICAL);
@@ -177,13 +179,13 @@ public class Owner_Information extends JFrame {
 		lblPhoneNumber.setBounds(70, 281, 125, 31);
 		Owner.add(lblPhoneNumber);
 
-		lblNationality = new JLabel("Country");
+		lblNationality = new JLabel("Address");
 		lblNationality.setFont(new Font("Arial", Font.BOLD, 17));
 		lblNationality.setForeground(new Color(255, 255, 255));
 		lblNationality.setBounds(70, 186, 86, 31);
 		Owner.add(lblNationality);
 
-		lblIDPhoto = new JLabel("National ID Photo");
+		lblIDPhoto = new JLabel(" Photo");
 		lblIDPhoto.setForeground(Color.WHITE);
 		lblIDPhoto.setFont(new Font("Arial", Font.BOLD, 17));
 		lblIDPhoto.setBounds(501, 60, 161, 31);
@@ -195,7 +197,7 @@ public class Owner_Information extends JFrame {
 		lblpicture.setBounds(653, 60, 268, 185);
 		Owner.add(lblpicture);
 
-		lblCccd = new JLabel("CCCD");
+		lblCccd = new JLabel("Citizen ID");
 		lblCccd.setForeground(Color.WHITE);
 		lblCccd.setFont(new Font("Arial", Font.BOLD, 17));
 		lblCccd.setBounds(70, 102, 77, 31);
@@ -273,12 +275,12 @@ public class Owner_Information extends JFrame {
 
 		btnBack = new JButton("◄ Back");
 		btnBack.setBackground(new Color(255, 255, 255));
-        btnBack.setForeground(new Color(0, 128, 128));
-        btnBack.setFont(new Font("Arial", Font.BOLD, 15));
-        btnBack.setBounds(50, 750, 100, 30);
-        contentPane.add(btnBack);
+		btnBack.setForeground(new Color(0, 128, 128));
+		btnBack.setFont(new Font("Arial", Font.BOLD, 15));
+		btnBack.setBounds(50, 750, 100, 30);
+		contentPane.add(btnBack);
 
-        btnBack.addActionListener(e -> {
+		btnBack.addActionListener(e -> {
 			dispose();
 			var mainFrame = new User(userID);
 			mainFrame.setVisible(true);
@@ -306,7 +308,7 @@ public class Owner_Information extends JFrame {
 		textEndDate.setEditable(false);
 		textApartmentID.setEditable(false);
 		loadMemberData(userID);
-    }
+	}
 
 	public void loadMemberData(int userID) {
 		try {
